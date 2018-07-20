@@ -19,6 +19,10 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = "myTag";
+    private ArrayList<String> locationList;
+    private int displayingLocation;
+
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +37,11 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        updateDrawersItem(navigationView, getFakeArray());
+        locationList = getFakeArray();
+        updateDrawersItem();
     }
 
     @Override
@@ -77,6 +82,18 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        Log.d(TAG, "onNavigationItemSelected(): " + id );
+
+        switch (id){
+            case R.id.current_place:
+                displayingLocation = 0;
+                break;
+            default:
+                displayingLocation = id;
+        }
+
+        navigationView.post(onNavChange);
+
 //        if (id == R.id.nav_camera) {
 //            // Handle the camera action
 //        } else if (id == R.id.nav_gallery) {
@@ -96,19 +113,21 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void updateDrawersItem(NavigationView drawer, ArrayList<String> arrayList) {
+    private void updateDrawersItem() {
         int FAVOURITES_ID = 1;
         int GROUP_ID = 1;
-        int ITEM_ID = 100;
+        int ITEM_ORDER = 100;
 
-        Menu menu = drawer.getMenu();
+        Menu menu = navigationView.getMenu();
         MenuItem favourites = menu.getItem(FAVOURITES_ID);
         Menu menuFavourites = favourites.getSubMenu();
         menuFavourites.removeGroup(GROUP_ID);
-        for (int i = 0; i < arrayList.size(); i++) {
-            final MenuItem menuItem = menuFavourites.add(GROUP_ID, i, ITEM_ID + i, arrayList.get(i))
-            .setIcon(R.drawable.ic_place_black_24dp)
-            .setActionView(R.layout.action_view_delete);
+        for (int i = 0; i < locationList.size(); i++) {
+            final int ITEM_ID = 1 + i;
+            final MenuItem menuItem = menuFavourites
+                    .add(GROUP_ID, ITEM_ID, ITEM_ORDER + i, locationList.get(i))
+                    .setIcon(R.drawable.ic_place_black_24dp)
+                    .setActionView(R.layout.action_view_delete);
 
             View actionView = menuItem.getActionView();
             ImageView imageView = (ImageView) actionView.findViewById(R.id.iv_delete);
@@ -122,11 +141,48 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private Runnable onNavChange = new Runnable() {
+        @Override
+        public void run() {
+            if (displayingLocation == 0){
+                clearCheckedPosition();
+                MenuItem menuItem = navigationView.getMenu()
+                        .getItem(0)
+                        .getSubMenu()
+                        .getItem(0);
+                menuItem.setChecked(true);
+            }
+            else if (displayingLocation <= locationList.size()){
+                clearCheckedPosition();
+                MenuItem menuItem = navigationView.getMenu()
+                        .getItem(1)
+                        .getSubMenu()
+                        .getItem(displayingLocation-1);
+                menuItem.setChecked(true);
+            }
+        }
+    };
+
+    private void clearCheckedPosition(){
+        navigationView.getMenu()
+                .getItem(0)
+                .getSubMenu()
+                .getItem(0)
+                .setChecked(false);
+        for (int i = 0; i < locationList.size(); i++) {
+            navigationView.getMenu()
+                    .getItem(1)
+                    .getSubMenu()
+                    .getItem(i)
+                    .setChecked(false);
+        }
+    }
+
     private ArrayList<String> getFakeArray(){
         ArrayList<String> arrayList = new ArrayList<>();
-        arrayList.add("Moscow");
-        arrayList.add("St.Petersburg");
-        arrayList.add("N.Novgorod");
+        arrayList.add(0, "Moscow"); // index = 0 currentLocation
+        arrayList.add(1, "St.Petersburg"); // index > 0 favourite
+        arrayList.add(2, "N.Novgorod");
         return arrayList;
     }
 }
