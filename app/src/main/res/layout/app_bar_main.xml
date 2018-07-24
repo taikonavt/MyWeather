@@ -44,6 +44,30 @@
                 app:layout_collapseMode="none"
                 />
 
+            <TextView
+                android:id="@+id/tv_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_gravity="start|center_vertical"
+                android:textColor="@android:color/white"
+                app:layout_collapseMode="none"
+                />
+
+            <TextView
+                android:id="@+id/tv_hum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_gravity="end|center_vertical"
+                android:textColor="@android:color/white"
+                app:layout_collapseMode="none"
+                />
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
