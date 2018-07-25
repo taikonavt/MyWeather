@@ -27,9 +27,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        displayingLocation = getLastDisplayingLocation();
+        locationList = getFakeArray();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(locationList.get(displayingLocation));
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -40,7 +45,6 @@ public class MainActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        locationList = getFakeArray();
         updateDrawersItem();
     }
 
@@ -184,5 +188,10 @@ public class MainActivity extends AppCompatActivity
         arrayList.add(1, "St.Petersburg"); // index > 0 favourite
         arrayList.add(2, "N.Novgorod");
         return arrayList;
+    }
+
+    public int getLastDisplayingLocation() {
+        // TODO: 25.07.18
+        return 0;
     }
 }
