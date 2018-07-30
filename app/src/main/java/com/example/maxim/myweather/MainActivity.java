@@ -1,6 +1,7 @@
 package com.example.maxim.myweather;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final String LAST_LOCATION_KEY = "last_location_key";
     private ArrayList<String> locationList;
     private int displayingLocation;
 
@@ -96,24 +99,11 @@ public class MainActivity extends AppCompatActivity
                 displayingLocation = 0;
                 break;
             default:
-                displayingLocation = id;
+                displayingLocation = id; // здесь id от 1 и дальше
         }
 
         navigationView.post(onNavChange);
-
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
+        getSupportActionBar().setTitle(locationList.get(displayingLocation));
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -121,18 +111,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateDrawersItem() {
+        int LOCATION_ID = 0;
         int FAVOURITES_ID = 1;
         int GROUP_ID = 1;
         int ITEM_ORDER = 100;
 
         Menu menu = navigationView.getMenu();
+
+        MenuItem loaction = menu.getItem(LOCATION_ID);
+        Menu menuLocation = loaction.getSubMenu();
+        menuLocation.getItem(0).setTitle(locationList.get(0));
+
         MenuItem favourites = menu.getItem(FAVOURITES_ID);
         Menu menuFavourites = favourites.getSubMenu();
         menuFavourites.removeGroup(GROUP_ID);
-        for (int i = 0; i < locationList.size(); i++) {
-            final int ITEM_ID = 1 + i;
+        for (int i = 1; i < locationList.size(); i++) {
+//            final int ITEM_ID = i;
             final MenuItem menuItem = menuFavourites
-                    .add(GROUP_ID, ITEM_ID, ITEM_ORDER + i, locationList.get(i))
+                    .add(GROUP_ID, i, ITEM_ORDER + i, locationList.get(i))
                     .setIcon(R.drawable.ic_place_black_24dp)
                     .setActionView(R.layout.action_view_delete);
 
@@ -176,7 +172,7 @@ public class MainActivity extends AppCompatActivity
                 .getSubMenu()
                 .getItem(0)
                 .setChecked(false);
-        for (int i = 0; i < locationList.size(); i++) {
+        for (int i = 0; i < locationList.size() - 1; i++) {
             navigationView.getMenu()
                     .getItem(1)
                     .getSubMenu()
@@ -193,8 +189,18 @@ public class MainActivity extends AppCompatActivity
         return arrayList;
     }
 
+    // последний гарантированно вызываемый метод перед закрытием
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences sp = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt(LAST_LOCATION_KEY, displayingLocation);
+        editor.commit();
+    }
+
     public int getLastDisplayingLocation() {
-        // TODO: 25.07.18
-        return 0;
+        SharedPreferences sp = getPreferences(MODE_PRIVATE);
+        return sp.getInt(LAST_LOCATION_KEY, 0);
     }
 }
