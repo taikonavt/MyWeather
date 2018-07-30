@@ -1,5 +1,6 @@
 package com.example.maxim.myweather;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String TAG = "myTag";
+    public static final String TAG = MainActivity.class.getSimpleName();
     private ArrayList<String> locationList;
     private int displayingLocation;
 
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         updateDrawersItem();
+
+        startService(new Intent(MainActivity.this, SyncIntentService.class));
     }
 
     @Override
