@@ -1,6 +1,9 @@
 package com.example.maxim.myweather;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,10 +23,15 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+    public static final String BROADCAST_ACTION = "broadcast";
+    public static final String SENSOR_VAL = "sensor_val";
+
     private ArrayList<String> locationList;
     private int displayingLocation;
 
     private NavigationView navigationView;
+
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +57,17 @@ public class MainActivity extends AppCompatActivity
         updateDrawersItem();
 
         startService(new Intent(MainActivity.this, SyncIntentService.class));
+
+        IntentFilter intentValue = new IntentFilter(BROADCAST_ACTION);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String value = String.valueOf(intent.getFloatExtra(SENSOR_VAL, 0));
+                Log.d(SENSOR_VAL, value);
+            }
+        };
+
+        registerReceiver(broadcastReceiver, intentValue);
     }
 
     @Override
