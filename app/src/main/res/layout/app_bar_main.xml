@@ -25,23 +25,10 @@
             app:titleEnabled="false"
             >
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/rain"
-                android:scaleType="fitXY"
-                tools:ignore="ContentDescription"
-                app:layout_collapseMode="pin"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="18C"
-                android:textSize="60dp"
-                android:layout_gravity="center"
-                android:textColor="@android:color/white"
-                app:layout_collapseMode="none"
+            <include
+                layout="@layout/main_info_field"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 />
 
             <android.support.v7.widget.Toolbar
@@ -51,7 +38,6 @@
                 android:layout_gravity="center_horizontal"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
-
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
