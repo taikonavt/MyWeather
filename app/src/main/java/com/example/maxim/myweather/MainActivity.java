@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, PreferenceActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -118,8 +120,8 @@ public class MainActivity extends AppCompatActivity
 
         Menu menu = navigationView.getMenu();
 
-        MenuItem loaction = menu.getItem(LOCATION_ID);
-        Menu menuLocation = loaction.getSubMenu();
+        MenuItem location = menu.getItem(LOCATION_ID);
+        Menu menuLocation = location.getSubMenu();
         menuLocation.getItem(0).setTitle(locationList.get(0));
 
         MenuItem favourites = menu.getItem(FAVOURITES_ID);
