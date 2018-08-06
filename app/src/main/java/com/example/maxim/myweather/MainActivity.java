@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+        navigationView.post(onNavChange);
     }
 
     private Runnable onNavChange = new Runnable() {

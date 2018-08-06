@@ -78,7 +78,7 @@ public class PreferenceActivity extends AppCompatActivity {
 
     private void changeUnits(View view) {
         AppPreferences preferences = new AppPreferences(this);
-        TextView tv = (TextView) view;
+        TextView tv = (TextView) findViewById(R.id.tv_activity_preferences_units);
         String stringFromView = (String) tv.getText();
         String metric = getResources().getString(R.string.settings_measurement_units_metric);
         String imperial = getResources().getString(R.string.settings_measurement_units_imperial);
