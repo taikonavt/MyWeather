@@ -112,6 +112,13 @@
     <string name="settings_measurement_units_hint">Единицы измерения</string>
     <string name="settings_measurement_units_metric">&#176;C, кПа, м/с</string>
     <string name="settings_measurement_units_imperial">&#176;F, кПа, миль/час</string>
+    <string name="settings_language_hint">Язык</string>
+    <string-array name="settings_languages">
+        <item name="settings_language_rus" >Русский</item>
+        <item name="settings_language_en" >English</item>
+    </string-array>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_english">English</string>
     <string name="settings_about_developer">О разработчике</string>
 
 </resources>

@@ -13,14 +13,17 @@ import static android.content.Context.MODE_PRIVATE;
 public class AppPreferences implements PrefsHelper{
     public static final String LAST_LOCATION_KEY = "last_location_key";
     public static final String UNITS_KEY = "units_key";
+    public static final String UNITS_IMP = "imperial";
+    public static final String UNITS_METRIC = "metric";
     public static final String API_KEY = "api_key";
+    public static final String MY_API = "54c14a8a9eb21c3a704db6e4a59636a0";
     public static final String LANGUAGE_KEY = "language_key";
     public static final String UPDATE_PERIOD_KEY = "update_period_key";
 
     private SharedPreferences sharedPreferences;
 
-    public AppPreferences(MainActivity mainActivity){
-        this.sharedPreferences = mainActivity.getPreferences(MODE_PRIVATE);
+    public AppPreferences(AppCompatActivity activity){
+        this.sharedPreferences = activity.getPreferences(MODE_PRIVATE);
     }
 
     @Override

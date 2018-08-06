@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity
     public static final String TAG = MainActivity.class.getSimpleName();
 
     private static final String LAST_LOCATION_KEY = "last_location_key";
+    private static final String CITY_FOR_FIRST_START = "Moscow";
+    private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
     private ArrayList<String> locationList;
     private int displayingLocation;
 
@@ -32,8 +34,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        locationList = getLocations();
         displayingLocation = getLastDisplayingLocation();
-        locationList = getFakeArray();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -183,11 +185,24 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private ArrayList<String> getFakeArray(){
-        ArrayList<String> arrayList = new ArrayList<>();
-        arrayList.add(0, "Moscow"); // index = 0 currentLocation
+    private ArrayList<String> getLocations(){
+        ArrayList<String> locationList = new ArrayList<>();
+        locationList.add(0, getCurrentLocation());
+        getLocationsFromDB(locationList);
+
+        if (locationList.size() == 1 && locationList.get(0).equals(UNKNOWN_CURRENT_LOCATION))
+            locationList.add(1, CITY_FOR_FIRST_START);
+        return locationList;
+    }
+
+    private String getCurrentLocation() {
+        return "Current Location";
+    }
+
+    private ArrayList<String> getLocationsFromDB(ArrayList<String> arrayList) {
         arrayList.add(1, "St.Petersburg"); // index > 0 favourite
         arrayList.add(2, "N.Novgorod");
+        arrayList.add(3, "Moscow");
         return arrayList;
     }
 
@@ -195,14 +210,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putInt(LAST_LOCATION_KEY, displayingLocation);
-        editor.commit();
+        AppPreferences preferences = new AppPreferences(this);
+        preferences.savePreference(LAST_LOCATION_KEY,
+                locationList.get(displayingLocation));
     }
 
     public int getLastDisplayingLocation() {
-        SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        return sp.getInt(LAST_LOCATION_KEY, 0);
+        AppPreferences preferences = new AppPreferences(this);
+        String string = preferences.getPreference(LAST_LOCATION_KEY, CITY_FOR_FIRST_START);
+        return locationList.indexOf(string);
     }
 }
