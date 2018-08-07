@@ -7,4 +7,5 @@
     <color name="colorSettingsField">#FFFFFF</color>
     <color name="colorTextMain">#000000</color>
     <color name="colorTextHint">#999999</color>
+    <color name="colorDividingLine">#999999</color>
 </resources>

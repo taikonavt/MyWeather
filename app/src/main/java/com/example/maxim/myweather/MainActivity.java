@@ -1,7 +1,6 @@
 package com.example.maxim.myweather;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        TenDaysForecastAdapter adapter = new TenDaysForecastAdapter(getFakeForecast());
+        ForecastListAdapter adapter = new ForecastListAdapter(getFakeForecast());
         recyclerView.setAdapter(adapter);
     }
 
