@@ -6,10 +6,15 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">360dp</dimen>
-    <dimen name="large_text_margin">24dp</dimen>
-    <dimen name="standard_text_margin">16dp</dimen>
-    <dimen name="small_text_margin">8dp</dimen>
-    <dimen name="small_text_size">12sp</dimen>
-    <dimen name="standard_text_size">16sp</dimen>
-    <dimen name="standard_field_margin">8dp</dimen>
+
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_standard">16sp</dimen>
+    <dimen name="text_size_large">20sp</dimen>
+    <dimen name="text_size_for_main_temp">60sp</dimen>
+
+    <dimen name="text_margin_small">8dp</dimen>
+    <dimen name="text_margin_standard">16dp</dimen>
+    <dimen name="text_margin_large">24dp</dimen>
+
+    <dimen name="field_margin_standard">8dp</dimen>
 </resources>

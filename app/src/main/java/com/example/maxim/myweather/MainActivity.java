@@ -15,30 +15,59 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.example.maxim.myweather.Network.OpenWeather;
+import com.example.maxim.myweather.Network.WeatherRequest;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    private static final String BASE_URL = "https://api.openweathermap.org/";
     private static final String LAST_LOCATION_KEY = "last_location_key";
     private static final String CITY_FOR_FIRST_START = "Moscow";
     private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
     private ArrayList<String> locationList;
     private int displayingLocation;
 
+    private TextView tvTodayTemp;
+    private TextView tvTodayWeatherType;
+    private TextView tvTodayWind;
+    private TextView tvTodayHumidity;
+    private DrawerLayout drawer;
+    private Toolbar toolbar;
     private NavigationView navigationView;
+    private OpenWeather openWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
         locationList = getLocations();
         displayingLocation = getLastDisplayingLocation();
 
-        setContentView(R.layout.activity_main);
+        initRetrofit();
+
+        startService(new Intent(MainActivity.this, SyncIntentService.class));
+
+        initGui();
+
+        requestRetrofit(locationList.get(1));
+    }
+
+    private void initGui() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(locationList.get(displayingLocation));
@@ -51,10 +80,12 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         updateDrawersItem();
 
-        startService(new Intent(MainActivity.this, SyncIntentService.class));
+        tvTodayTemp = (TextView) findViewById(R.id.tv_main_info_field_temperature);
+        tvTodayHumidity = (TextView) findViewById(R.id.tv_main_info_field_humidity);
+        tvTodayWeatherType = (TextView) findViewById(R.id.tv_main_info_field_weather_type);
+        tvTodayWind = (TextView) findViewById(R.id.tv_main_info_field_wind);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_ten_days_forecast);
         recyclerView.setHasFixedSize(true);
@@ -236,5 +267,39 @@ public class MainActivity extends AppCompatActivity
         AppPreferences preferences = new AppPreferences(this);
         String string = preferences.getPreference(LAST_LOCATION_KEY, CITY_FOR_FIRST_START);
         return locationList.indexOf(string);
+    }
+
+    private void initRetrofit(){
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        openWeather = retrofit.create(OpenWeather.class);
+    }
+
+    private void requestRetrofit(String city){
+        AppPreferences preferences = new AppPreferences(this);
+        String units = preferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+        String keyApi = preferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+
+        openWeather.loadWeather(city, units, keyApi)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null) {
+                            tvTodayTemp.setText(Float.toString(response.body().getMain().getTemp()));
+                            tvTodayHumidity.setText(Float.toString(response.body().getMain().getHumidity()));
+                            tvTodayWeatherType.setText(response.body().getWeather()[0].getMain());
+                            tvTodayWind.setText(Float.toString(response.body().getWind().getSpeed())
+                            + ", " + Float.toString(response.body().getWind().getDeg()));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        tvTodayTemp.setText("Error");
+                    }
+                });
     }
 }
