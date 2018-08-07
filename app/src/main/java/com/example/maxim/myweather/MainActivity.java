@@ -8,6 +8,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -54,6 +56,13 @@ public class MainActivity extends AppCompatActivity
         updateDrawersItem();
 
         startService(new Intent(MainActivity.this, SyncIntentService.class));
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_ten_days_forecast);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        TenDaysForecastAdapter adapter = new TenDaysForecastAdapter(getFakeForecast());
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -205,6 +214,14 @@ public class MainActivity extends AppCompatActivity
         arrayList.add(2, "N.Novgorod");
         arrayList.add(3, "Moscow");
         return arrayList;
+    }
+
+    private String[] getFakeForecast(){
+        String[] strings = new String[10];
+        for (int i = 0; i < 10; i++) {
+            strings[i] = "123";
+        }
+        return strings;
     }
 
     // последний гарантированно вызываемый метод перед закрытием
