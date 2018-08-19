@@ -17,8 +17,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.maxim.myweather.Network.OpenWeather;
-import com.example.maxim.myweather.Network.WeatherRequest;
+import com.example.maxim.myweather.network.OpenWeather;
+import com.example.maxim.myweather.network.WeatherRequest;
 
 import java.util.ArrayList;
 
