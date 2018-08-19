@@ -39,15 +39,13 @@ public class MainActivity extends AppCompatActivity
     private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
     private ArrayList<String> locationList;
     private int displayingLocation;
+    private OpenWeather openWeather;
 
     private TextView tvTodayTemp;
     private TextView tvTodayWeatherType;
     private TextView tvTodayWind;
     private TextView tvTodayHumidity;
-    private DrawerLayout drawer;
-    private Toolbar toolbar;
     private NavigationView navigationView;
-    private OpenWeather openWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
