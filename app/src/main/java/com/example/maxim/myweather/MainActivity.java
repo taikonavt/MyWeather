@@ -17,8 +17,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.maxim.myweather.Network.OpenWeather;
-import com.example.maxim.myweather.Network.WeatherRequest;
+import com.example.maxim.myweather.database.Contract;
+import com.example.maxim.myweather.database.WeatherProvider;
+import com.example.maxim.myweather.network.OpenWeather;
+import com.example.maxim.myweather.network.WeatherRequest;
 
 import java.util.ArrayList;
 
@@ -31,7 +33,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String TAG = MainActivity.class.getSimpleName();
+    public static final String TAG = "myTag";
+    public static final String CLASS = MainActivity.class.getSimpleName() + " ";
 
     private static final String BASE_URL = "https://api.openweathermap.org/";
     private static final String LAST_LOCATION_KEY = "last_location_key";
@@ -39,15 +42,14 @@ public class MainActivity extends AppCompatActivity
     private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
     private ArrayList<String> locationList;
     private int displayingLocation;
+    private OpenWeather openWeather;
+    private WeatherProvider weatherProvider;
 
     private TextView tvTodayTemp;
     private TextView tvTodayWeatherType;
     private TextView tvTodayWind;
     private TextView tvTodayHumidity;
-    private DrawerLayout drawer;
-    private Toolbar toolbar;
     private NavigationView navigationView;
-    private OpenWeather openWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity
 
         locationList = getLocations();
         displayingLocation = getLastDisplayingLocation();
+        weatherProvider = new WeatherProvider();
 
         initRetrofit();
 
@@ -64,7 +67,17 @@ public class MainActivity extends AppCompatActivity
 
         initGui();
 
-        requestRetrofit(locationList.get(1));
+        // TODO: 19.08.18 change for displayingLocation
+        requestTodayWeather(locationList.get(displayingLocation));
+    }
+
+    private void requestTodayWeather(String city) {
+
+        weatherProvider.query(
+                Contract.LocationEntry.CONTENT_URI,
+                null,
+                Contract.LocationEntry.COLUMN_CITY_NAME, {city}, )
+        weatherProvider.query(Contract.TodayWeatherEntry.CONTENT_URI, null, Contract.TodayWeatherEntry.)
     }
 
     private void initGui() {
@@ -141,9 +154,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.current_place:
                 displayingLocation = 0;
                 break;
-            default:
+            default: {
                 displayingLocation = id; // здесь id от 1 и дальше
+            }
         }
+        requestRetrofit(locationList.get(id));
 
         navigationView.post(onNavChange);
         getSupportActionBar().setTitle(locationList.get(displayingLocation));
@@ -240,8 +255,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private ArrayList<String> getLocationsFromDB(ArrayList<String> arrayList) {
-        arrayList.add(1, "St.Petersburg"); // index > 0 favourite
-        arrayList.add(2, "N.Novgorod");
+        arrayList.add(1, "Saint Petersburg"); // index > 0 favourite
+        arrayList.add(2, "Nizhny Novgorod");
         arrayList.add(3, "Moscow");
         return arrayList;
     }
@@ -279,15 +294,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void requestRetrofit(String city){
-        AppPreferences preferences = new AppPreferences(this);
+        final AppPreferences preferences = new AppPreferences(this);
         String units = preferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
         String keyApi = preferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+
+        Log.d(TAG, CLASS + city);
 
         openWeather.loadWeather(city, units, keyApi)
                 .enqueue(new Callback<WeatherRequest>() {
                     @Override
                     public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
                         if (response.body() != null) {
+                            WeatherProvider provider = new WeatherProvider();
+                            provider.
                             tvTodayTemp.setText(Float.toString(response.body().getMain().getTemp()));
                             tvTodayHumidity.setText(Float.toString(response.body().getMain().getHumidity()));
                             tvTodayWeatherType.setText(response.body().getWeather()[0].getMain());
