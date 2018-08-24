@@ -1,7 +1,6 @@
 package com.example.maxim.myweather;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,28 +15,59 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.example.maxim.myweather.Network.OpenWeather;
+import com.example.maxim.myweather.Network.WeatherRequest;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    private static final String BASE_URL = "https://api.openweathermap.org/";
     private static final String LAST_LOCATION_KEY = "last_location_key";
+    private static final String CITY_FOR_FIRST_START = "Moscow";
+    private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
     private ArrayList<String> locationList;
     private int displayingLocation;
 
+    private TextView tvTodayTemp;
+    private TextView tvTodayWeatherType;
+    private TextView tvTodayWind;
+    private TextView tvTodayHumidity;
+    private DrawerLayout drawer;
+    private Toolbar toolbar;
     private NavigationView navigationView;
+    private OpenWeather openWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        displayingLocation = getLastDisplayingLocation();
-        locationList = getFakeArray();
-
         setContentView(R.layout.activity_main);
+
+        locationList = getLocations();
+        displayingLocation = getLastDisplayingLocation();
+
+        initRetrofit();
+
+        startService(new Intent(MainActivity.this, SyncIntentService.class));
+
+        initGui();
+
+        requestRetrofit(locationList.get(1));
+    }
+
+    private void initGui() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(locationList.get(displayingLocation));
@@ -50,16 +80,18 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         updateDrawersItem();
 
-        startService(new Intent(MainActivity.this, SyncIntentService.class));
+        tvTodayTemp = (TextView) findViewById(R.id.tv_main_info_field_temperature);
+        tvTodayHumidity = (TextView) findViewById(R.id.tv_main_info_field_humidity);
+        tvTodayWeatherType = (TextView) findViewById(R.id.tv_main_info_field_weather_type);
+        tvTodayWind = (TextView) findViewById(R.id.tv_main_info_field_wind);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_ten_days_forecast);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        TenDaysForecastAdapter adapter = new TenDaysForecastAdapter(getFakeForecast());
+        ForecastListAdapter adapter = new ForecastListAdapter(getFakeForecast());
         recyclerView.setAdapter(adapter);
     }
 
@@ -89,6 +121,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, PreferenceActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -127,8 +161,8 @@ public class MainActivity extends AppCompatActivity
 
         Menu menu = navigationView.getMenu();
 
-        MenuItem loaction = menu.getItem(LOCATION_ID);
-        Menu menuLocation = loaction.getSubMenu();
+        MenuItem location = menu.getItem(LOCATION_ID);
+        Menu menuLocation = location.getSubMenu();
         menuLocation.getItem(0).setTitle(locationList.get(0));
 
         MenuItem favourites = menu.getItem(FAVOURITES_ID);
@@ -151,6 +185,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+        navigationView.post(onNavChange);
     }
 
     private Runnable onNavChange = new Runnable() {
@@ -190,11 +225,24 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private ArrayList<String> getFakeArray(){
-        ArrayList<String> arrayList = new ArrayList<>();
-        arrayList.add(0, "Moscow"); // index = 0 currentLocation
+    private ArrayList<String> getLocations(){
+        ArrayList<String> locationList = new ArrayList<>();
+        locationList.add(0, getCurrentLocation());
+        getLocationsFromDB(locationList);
+
+        if (locationList.size() == 1 && locationList.get(0).equals(UNKNOWN_CURRENT_LOCATION))
+            locationList.add(1, CITY_FOR_FIRST_START);
+        return locationList;
+    }
+
+    private String getCurrentLocation() {
+        return "Current Location";
+    }
+
+    private ArrayList<String> getLocationsFromDB(ArrayList<String> arrayList) {
         arrayList.add(1, "St.Petersburg"); // index > 0 favourite
         arrayList.add(2, "N.Novgorod");
+        arrayList.add(3, "Moscow");
         return arrayList;
     }
 
@@ -210,14 +258,48 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putInt(LAST_LOCATION_KEY, displayingLocation);
-        editor.commit();
+        AppPreferences preferences = new AppPreferences(this);
+        preferences.savePreference(LAST_LOCATION_KEY,
+                locationList.get(displayingLocation));
     }
 
     public int getLastDisplayingLocation() {
-        SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        return sp.getInt(LAST_LOCATION_KEY, 0);
+        AppPreferences preferences = new AppPreferences(this);
+        String string = preferences.getPreference(LAST_LOCATION_KEY, CITY_FOR_FIRST_START);
+        return locationList.indexOf(string);
+    }
+
+    private void initRetrofit(){
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        openWeather = retrofit.create(OpenWeather.class);
+    }
+
+    private void requestRetrofit(String city){
+        AppPreferences preferences = new AppPreferences(this);
+        String units = preferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+        String keyApi = preferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+
+        openWeather.loadWeather(city, units, keyApi)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null) {
+                            tvTodayTemp.setText(Float.toString(response.body().getMain().getTemp()));
+                            tvTodayHumidity.setText(Float.toString(response.body().getMain().getHumidity()));
+                            tvTodayWeatherType.setText(response.body().getWeather()[0].getMain());
+                            tvTodayWind.setText(Float.toString(response.body().getWind().getSpeed())
+                            + ", " + Float.toString(response.body().getWind().getDeg()));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        tvTodayTemp.setText("Error");
+                    }
+                });
     }
 }

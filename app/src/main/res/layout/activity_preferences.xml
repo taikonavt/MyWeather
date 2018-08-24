@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/settingsBackground"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    >
+
+    <LinearLayout
+        android:id="@+id/ll_activity_preferences_log_in"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorSettingsField"
+        android:clickable="true"
+        android:focusable="true"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_log_in"
+            android:textColor="@color/colorTextDark"
+            android:textSize="@dimen/text_size_standard"
+            android:layout_marginTop="@dimen/text_margin_standard"
+            android:layout_marginLeft="@dimen/text_margin_standard"
+            android:layout_marginRight="@dimen/text_margin_standard"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_log_in_hint"
+            android:textColor="@color/colorTextHint"
+            android:textSize="@dimen/text_size_standard"
+            android:layout_margin="@dimen/text_margin_standard"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_activity_preferences_units"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/colorSettingsField"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginTop="@dimen/field_margin_standard"
+        >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:text="@string/settings_measurement_units_hint"
+            android:textColor="@color/colorTextDark"
+            android:textSize="@dimen/text_size_standard"
+            android:layout_margin="@dimen/text_margin_standard"
+            />
+
+        <TextView
+            android:id="@+id/tv_activity_preferences_units"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/settings_measurement_units_metric"
+            android:textColor="@color/colorTextHint"
+            android:textSize="@dimen/text_size_standard"
+            android:layout_margin="@dimen/text_margin_standard"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_activity_preferences_language"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/colorSettingsField"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginTop="@dimen/field_margin_standard"
+        >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/settings_language_hint"
+            android:textColor="@color/colorTextDark"
+            android:textSize="@dimen/text_size_standard"
+            android:layout_margin="@dimen/text_margin_standard"
+            />
+
+        <Spinner
+            android:id="@+id/sp_activity_preferences_language"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/colorTextHint"
+            android:textSize="@dimen/text_size_standard"
+            android:layout_margin="@dimen/text_margin_standard"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_activity_preferences_developer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorSettingsField"
+        android:text="@string/settings_about_developer"
+        android:textColor="@color/colorTextDark"
+        android:textSize="@dimen/text_size_standard"
+        android:padding="@dimen/text_margin_standard"
+        android:layout_marginTop="@dimen/field_margin_standard"
+        />
+
+</LinearLayout>

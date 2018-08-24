@@ -9,8 +9,8 @@ public class MyWeatherSyncTask {
     synchronized public static void syncWeather(Context context){
 
         try {
-            URL weatherRequestUrl = NetworkUtils.getUrl(context);
-            String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
+//            URL weatherRequestUrl = NetworkUtils.getUrl(context);
+//            String jsonWeatherResponse = NetworkUtils.getResponseFromHttpUrl(weatherRequestUrl);
 
             // TODO: 30.07.18 get data from json
             // TODO: 30.07.18 delete old data from DB
