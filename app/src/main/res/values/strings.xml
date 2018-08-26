@@ -121,4 +121,7 @@
     <string name="settings_language_english">English</string>
     <string name="settings_about_developer">О разработчике</string>
 
+    <!-- Network.class -->
+    <string name="network_error">Сервер недоступен</string>
+
 </resources>
