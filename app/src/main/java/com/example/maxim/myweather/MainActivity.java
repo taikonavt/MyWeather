@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.maxim.myweather.database.Contract;
-import com.example.maxim.myweather.database.WeatherProvider;
 import com.example.maxim.myweather.network.Network;
 import com.example.maxim.myweather.network.WeatherRequest;
 
@@ -38,8 +37,8 @@ public class MainActivity extends AppCompatActivity
     private static final String LAST_LOCATION_KEY = "last_location_key";
     private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
     private ArrayList<Location> favoriteLocationList;
+    private Location currentLocation;
     private int displayingLocationIndex;
-    private WeatherProvider weatherProvider;
 
     private TextView tvTodayTemp;
     private TextView tvTodayWeatherType;
@@ -54,11 +53,11 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         Network.initNetwork(this);
-        weatherProvider = new WeatherProvider();
 
+        displayingLocationIndex = 0;
+        currentLocation = getCurrentLocationFromGps();
+        updateLocationWeather(currentLocation);
         favoriteLocationList = getFavoriteLocations();
-        displayingLocationIndex = getLastDisplayingLocationIndex();
-        updateLocation(displayingLocationIndex);
 
         startService(new Intent(MainActivity.this, SyncIntentService.class));
 
@@ -70,8 +69,7 @@ public class MainActivity extends AppCompatActivity
     private void initGui() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(
-                favoriteLocationList.get(displayingLocationIndex).getCityName());
+        getSupportActionBar().setTitle(currentLocation.getCityName());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -97,20 +95,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setTodayWeather() {
-        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-        String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
-        String[] selectionArgs = new String[]{Long.toString(
-                favoriteLocationList.get(displayingLocationIndex).getLocationId()
-        )};
+        Cursor cursor;
+        if (displayingLocationIndex == 0){
 
-        Cursor cursor = weatherProvider.query(
-                uri,
-                null,
-                selection,
-                selectionArgs,
-                null
-        );
+        } else {
+            Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
+            String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+            String[] selectionArgs = new String[]{Long.toString(
+                    favoriteLocationList.get(displayingLocationIndex).getLocationId()
+            )};
 
+            cursor = getContentResolver().query(
+                    uri,
+                    null,
+                    selection,
+                    selectionArgs,
+                    null
+            );
+        }
         if (cursor.moveToFirst()){
             int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
             int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
@@ -127,6 +129,7 @@ public class MainActivity extends AppCompatActivity
             tvTodayWind.setText(Float.toString(cursor.getFloat(windSpeedIndex))
                     + " ," + Float.toString(cursor.getFloat(degreesIndex)));
         }
+        cursor.close();
     }
 
     @Override
@@ -179,7 +182,7 @@ public class MainActivity extends AppCompatActivity
                 displayingLocationIndex = id; // здесь id от 1 и дальше
             }
         }
-        updateLocation(displayingLocationIndex);
+        updateLocationWeather(displayingLocationIndex);
         setTodayWeather();
 
         navigationView.post(onNavChange);
@@ -264,40 +267,10 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<Location> getFavoriteLocations(){
         ArrayList<Location> locationList = new ArrayList<>();
-        addFavoriteLocationsFromDB(locationList);
-        return locationList;
-    }
-
-    private Location getCurrentLocationFromGps(){
-        // TODO: 25.08.18 get coordinates from gps
-        Location location = new Location();
-        location.setCoordLat("55.75222");
-        location.setCoordLong("37.615555");
-        return location;
-    }
-
-    private void updateLocation(int pos) {
-        if (pos <= 0){
-            Location currentLocation = getCurrentLocationFromGps();
-            favoriteLocationList.add(0, currentLocation);
-            String coordLat = currentLocation.getCoordLat();
-            String coordLon = currentLocation.getCoordLon();
-            Network.getInstance().requestTodayWeather(coordLat, coordLon);
-        } else {
-            Location location = favoriteLocationList.get(pos);
-            long locationId = location.getLocationId();
-            Network.getInstance().requestTodayWeather(locationId);
-        }
-    }
-
-    private void addFavoriteLocationsFromDB(ArrayList<Location> arrayList) {
-//        arrayList.add(1, "Saint Petersburg"); // index > 0 favourite
-//        arrayList.add(2, "Nizhny Novgorod");
-//        arrayList.add(3, "Moscow");
 
         Uri uri = Contract.LocationEntry.CONTENT_URI;
 
-        Cursor cursor = weatherProvider.query(
+        Cursor cursor = getContentResolver().query(
                 uri,
                 null,
                 null,
@@ -319,15 +292,45 @@ public class MainActivity extends AppCompatActivity
                 location.setLocationId(cursor.getInt(idIndex));
                 location.setCityName(cursor.getString(cityNameIndex));
                 location.setCountryName(cursor.getString(countryIndex));
-                location.setCoordLat(cursor.getString(latitudeIndex));
-                location.setCoordLat(cursor.getString(longitudeIndex));
+                location.setCoordLat(cursor.getFloat(latitudeIndex));
+                location.setCoordLat(cursor.getFloat(longitudeIndex));
                 location.setTodayLastUpdate(cursor.getLong(todayIndex));
                 location.setForecastLastUpdate(cursor.getLong(forecastIndex));
-                arrayList.add(i, location);
+                locationList.add(i, location);
                 i++;
             } while (cursor.moveToNext());
         }
         cursor.close();
+
+        return locationList;
+    }
+
+    private Location getCurrentLocationFromGps(){
+        // TODO: 25.08.18 get coordinates from gps
+        Location location = new Location();
+        location.setCoordLat(55.75222f);
+        location.setCoordLong(37.615555f);
+        return location;
+    }
+
+    private void updateLocationWeather(Location location) {
+        float coordLat = location.getCoordLat();
+        float coordLon = location.getCoordLon();
+        if (coordLat != 0 && coordLon != 0){
+            Network.getInstance().requestTodayWeather(coordLat, coordLon);
+        } else if (location.getLocationId() != 0){
+            Network.getInstance().requestTodayWeather(location.getLocationId());
+        } else if (location.getCityName().length() != 0){
+            Network.getInstance().requestTodayWeather(location.getCityName());
+        }
+    }
+
+    private void addFavoriteLocationsFromDB(ArrayList<Location> arrayList) {
+//        arrayList.add(1, "Saint Petersburg"); // index > 0 favourite
+//        arrayList.add(2, "Nizhny Novgorod");
+//        arrayList.add(3, "Moscow");
+
+
     }
 
     private String[] getFakeForecast(){
@@ -348,15 +351,55 @@ public class MainActivity extends AppCompatActivity
                 favoriteLocationList.get(displayingLocationIndex).getCityName());
     }
 
-    public int getLastDisplayingLocationIndex() {
+    public String getLastDisplayingLocation() {
         AppPreferences preferences = new AppPreferences(this);
         String string = preferences.getPreference(LAST_LOCATION_KEY, "");
-        return favoriteLocationList.indexOf(string);
+        return string;
+    }
+
+    @Override
+    public void updateCurrentLocation(WeatherRequest weatherRequest) {
+        long locationId = weatherRequest.getId();
+        String cityName = weatherRequest.getName();
+        String countryName = weatherRequest.getSys().getCountry();
+        float coordLon = weatherRequest.getCoord().getLon();
+        float coordLat = weatherRequest.getCoord().getLat();
+        long todayLastUdpate = System.currentTimeMillis();
+        long forecastLastUpdate = 0;
+
+        currentLocation.setLocationId(locationId);
+        
+    }
+
+    @Override
+    public void sendToDbNewLocation(WeatherRequest weatherRequest) {
+        long locationId = weatherRequest.getId();
+        String cityName = weatherRequest.getName();
+        String countryName = weatherRequest.getSys().getCountry();
+        float coordLon = weatherRequest.getCoord().getLon();
+        float coordLat = weatherRequest.getCoord().getLat();
+        long todayLastUdpate = System.currentTimeMillis();
+        long forecastLastUpdate = 0;
+
+        ContentValues cv = new ContentValues();
+        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, locationId);
+        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, cityName);
+        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, countryName);
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, coordLon);
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, coordLat);
+        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, todayLastUdpate);
+        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, forecastLastUpdate);
+
+        Uri uri = Contract.LocationEntry.CONTENT_URI;
+        getContentResolver().insert(uri, cv);
+
+        favoriteLocationList = getFavoriteLocations();
+        updateDrawersItem();
     }
 
     @Override
     public void sendToDbTodayWeather(WeatherRequest weatherRequest) {
-        long id = weatherRequest.getId();
+        long locationId = weatherRequest.getId();
         int weatherId = weatherRequest.getWeather()[0].getId();
         String shortDescription = weatherRequest.getWeather()[0].getDescription();
         float temperature = weatherRequest.getMain().getTemp();
@@ -366,7 +409,7 @@ public class MainActivity extends AppCompatActivity
         float windDegrees = weatherRequest.getWind().getDeg();
 
         ContentValues cv = new ContentValues();
-        cv.put(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID, id);
+        cv.put(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID, locationId);
         cv.put(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID, weatherId);
         cv.put(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC, shortDescription);
         cv.put(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE, temperature);
@@ -377,14 +420,14 @@ public class MainActivity extends AppCompatActivity
 
         Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
         String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
-        String[] selectionArgs = new String[]{Long.toString(id)};
+        String[] selectionArgs = new String[]{Long.toString(locationId)};
 
-        Cursor query = weatherProvider.query(uri, null, selection, selectionArgs, null);
+        Cursor query = getContentResolver().query(uri, null, selection, selectionArgs, null);
         if (query.moveToFirst()){
-            weatherProvider.update(uri, cv, selection, selectionArgs);
+            getContentResolver().update(uri, cv, selection, selectionArgs);
         }
         else {
-            weatherProvider.insert(uri, cv);
+            getContentResolver().insert(uri, cv);
         }
         query.close();
     }
@@ -392,5 +435,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void sendToDbForecastWeather(WeatherRequest weatherRequest) {
 
+    }
+
+    private void addNewFavoriteLocation(){
+        Location saintPetersburg = new Location();
+        saintPetersburg.setCityName("Saint Petersburg");
+        Network.getInstance().requestTodayWeather(saintPetersburg.getCityName());
     }
 }

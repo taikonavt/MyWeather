@@ -6,8 +6,8 @@ public class Location {
     private long id;
     private String cityName;
     private String countryName;
-    private String coordLat;
-    private String coordLong;
+    private Float coordLat;
+    private Float coordLong;
     private long todayLastUpdate;
     private long forecastLastUpdate;
 
@@ -15,8 +15,8 @@ public class Location {
         id = 0;
         cityName = "";
         countryName = "";
-        coordLat = "";
-        coordLong = "";
+        coordLat = 0.0f;
+        coordLong = 0.0f;
         todayLastUpdate = 0;
         forecastLastUpdate = 0;
         }
@@ -33,7 +33,7 @@ public class Location {
         return id;
     }
 
-    public void setLocationId(int id) {
+    public void setLocationId(long id) {
         this.id = id;
     }
 
@@ -53,19 +53,19 @@ public class Location {
         this.countryName = countryName;
     }
 
-    public String getCoordLat() {
+    public float getCoordLat() {
         return coordLat;
     }
 
-    public void setCoordLat(String coordLat) {
+    public void setCoordLat(float coordLat) {
         this.coordLat = coordLat;
     }
 
-    public String getCoordLon() {
+    public float getCoordLon() {
         return coordLong;
     }
 
-    public void setCoordLong(String coordLong) {
+    public void setCoordLong(float coordLong) {
         this.coordLong = coordLong;
     }
 

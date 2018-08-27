@@ -17,8 +17,14 @@ public interface OpenWeather {
 
     @GET("data/2.5/weather")
     Call<WeatherRequest> loadTodayWeather(
-            @Query("lat") String coordLat,
-            @Query("lon") String coordLon,
+            @Query("lat") float coordLat,
+            @Query("lon") float coordLon,
+            @Query("units") String units,
+            @Query("appid") String keyApi);
+
+    @GET("data/2.5/weather")
+    Call<WeatherRequest> loadTodayWeather(
+            @Query("q") String cityName,
             @Query("units") String units,
             @Query("appid") String keyApi);
 }

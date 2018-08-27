@@ -9,10 +9,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.example.maxim.myweather.utils.DateUtils;
 
 public class WeatherProvider extends ContentProvider {
+    String TAG = "myLog";
+    String CLASS = WeatherProvider.class.getSimpleName() + " ";
+
     private DatabaseHelper dbHelper;
     private static final UriMatcher uriMatcher = buildUriMatcher();
 
@@ -31,7 +35,7 @@ public class WeatherProvider extends ContentProvider {
     public static UriMatcher buildUriMatcher(){
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = Contract.CONTENT_AUTHORITY;
-        matcher.addURI(authority, Contract.PATH_LOCATION + "/*", CODE_LOCATION);
+        matcher.addURI(authority, Contract.PATH_LOCATION, CODE_LOCATION);
         matcher.addURI(authority, Contract.PATH_TODAY, CODE_TODAY_WEATHER);
         matcher.addURI(authority, Contract.PATH_FORECAST, CODE_FORECAST_WEATHER);
 //        matcher.addURI(authority, Contract.PATH_TODAY + "/#", CODE_TODAY_WEATHER_FOR_LOCATION);
@@ -45,10 +49,12 @@ public class WeatherProvider extends ContentProvider {
                         @Nullable String selection, @Nullable String[] selectionArgs,
                         @Nullable String sortOrder) {
         Cursor cursor;
+        Log.d(TAG, CLASS + dbHelper.toString());
+        final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         switch (uriMatcher.match(uri)){
             case CODE_LOCATION:{
-                cursor = dbHelper.getReadableDatabase().query(
+                cursor = db.query(
                         Contract.LocationEntry.TABLE_NAME,
                         columns,
                         selection + " = ?",
@@ -62,7 +68,7 @@ public class WeatherProvider extends ContentProvider {
             case CODE_TODAY_WEATHER:{
                 String location = uri.getLastPathSegment();
                 String[] args = new String[] {location};
-                cursor = dbHelper.getReadableDatabase().query(
+                cursor = db.query(
                         Contract.TodayWeatherEntry.TABLE_NAME,
                         columns,
                         selection + " = ?",
@@ -76,7 +82,7 @@ public class WeatherProvider extends ContentProvider {
             case CODE_FORECAST_WEATHER:{
                 String location = uri.getLastPathSegment();
                 String[] args = new String[] {location};
-                cursor = dbHelper.getReadableDatabase().query(
+                cursor = db.query(
                         Contract.ForecastWeatherEntry.TABLE_NAME,
                         columns,
                         selection + " = ?",

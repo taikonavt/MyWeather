@@ -30,6 +30,11 @@
             android:exported="true"
             >
         </service>
+        <provider
+            android:authorities="com.example.maxim.myweather"
+            android:name=".database.WeatherProvider"
+            android:exported="false"
+            />
     </application>
 
 </manifest>

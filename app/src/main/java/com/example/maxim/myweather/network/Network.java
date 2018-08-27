@@ -38,7 +38,7 @@ public class Network {
         return instance;
     }
 
-    public void requestTodayWeather(String coordLat, String coordLon){
+    public void requestTodayWeather(float coordLat, float coordLon){
         AppPreferences preferences = new AppPreferences(activity);
         String units = preferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
         String keyApi = preferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
@@ -84,7 +84,33 @@ public class Network {
                 });
     }
 
+    public void requestTodayWeather(String cityName){
+        AppPreferences appPreferences = new AppPreferences(activity);
+        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+
+        openWeather.loadTodayWeather(cityName, units, keyApi)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null) {
+                            MainActivity mainActivity = (MainActivity) activity;
+                            mainActivity.sendToDbNewLocation(response.body());
+                            mainActivity.sendToDbTodayWeather(response.body());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        Toast.makeText(activity, activity.getString(R.string.network_error),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
     public interface DbCallable{
+        void updateCurrentLocation(WeatherRequest weatherRequest);
+        void sendToDbNewLocation(WeatherRequest weatherRequest);
         void sendToDbTodayWeather(WeatherRequest weatherRequest);
         void sendToDbForecastWeather(WeatherRequest weatherRequest);
     }
