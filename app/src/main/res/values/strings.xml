@@ -127,4 +127,9 @@
     <!-- MainActivity.class -->
     <string name="current_location">Текущее местоположение</string>
 
+    <string name="degrees_celsius">&#176;C</string>
+    <string name="kilo_pascal">кПа</string>
+    <string name="metrov_v_sec">м/с</string>
+    <string name="degrees">&#176;</string>
+
 </resources>

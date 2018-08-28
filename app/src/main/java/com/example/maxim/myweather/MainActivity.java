@@ -123,11 +123,13 @@ public class MainActivity extends AppCompatActivity
             int windSpeedIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WIND_SPEED);
             int degreesIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_DEGREES);
 
-            tvTodayTemp.setText(Float.toString(cursor.getFloat(temperatureIndex)));
+            tvTodayTemp.setText(Float.toString(cursor.getFloat(temperatureIndex)) +
+                            getString(R.string.degrees_celsius));
             tvTodayWeatherType.setText(cursor.getString(descriptionIndex));
-            tvTodayHumidity.setText(Integer.toString(cursor.getInt(humidityIndex)));
-            tvTodayWind.setText(Float.toString(cursor.getFloat(windSpeedIndex))
-                    + " ," + Float.toString(cursor.getFloat(degreesIndex)));
+            tvTodayHumidity.setText(Integer.toString(cursor.getInt(humidityIndex)) + "%");
+            tvTodayWind.setText(Float.toString(cursor.getFloat(windSpeedIndex)) +
+                    getString(R.string.metrov_v_sec) + ", " +
+                    Float.toString(cursor.getFloat(degreesIndex)) + getString(R.string.degrees));
         }
         cursor.close();
     }
