@@ -35,9 +35,9 @@ public class MainActivity extends AppCompatActivity
 
 
     private static final String LAST_LOCATION_KEY = "last_location_key";
-    private static final String UNKNOWN_CURRENT_LOCATION = "unknown";
-    private ArrayList<Location> favoriteLocationList;
-    private Location currentLocation;
+    private static final int MOSCOW_ID = 524901;
+    private ArrayList<Location> locationList;
+//    private Location currentLocation;
     private int displayingLocationIndex;
 
     private TextView tvTodayTemp;
@@ -55,21 +55,21 @@ public class MainActivity extends AppCompatActivity
         Network.initNetwork(this);
 
         displayingLocationIndex = 0;
-        currentLocation = getCurrentLocationFromGps();
-        updateLocationWeather(currentLocation);
-        favoriteLocationList = getFavoriteLocations();
-
-        startService(new Intent(MainActivity.this, SyncIntentService.class));
+        locationList = new ArrayList<>();
+        addCurrentLocationFromPref(locationList);
+        getFavoriteLocations(locationList);
 
         initGui();
-
         setTodayWeather();
+
+        updateCurrentLocationFromGps();
+
+        startService(new Intent(MainActivity.this, SyncIntentService.class));
     }
 
     private void initGui() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(currentLocation.getCityName());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -95,24 +95,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setTodayWeather() {
+        getSupportActionBar().setTitle(locationList.get(displayingLocationIndex).getCityName());
+
         Cursor cursor;
-        if (displayingLocationIndex == 0){
 
-        } else {
-            Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-            String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
-            String[] selectionArgs = new String[]{Long.toString(
-                    favoriteLocationList.get(displayingLocationIndex).getLocationId()
-            )};
+        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
+        String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+        String[] selectionArgs = new String[]{Long.toString(
+                locationList.get(displayingLocationIndex).getLocationId()
+        )};
 
-            cursor = getContentResolver().query(
-                    uri,
-                    null,
-                    selection,
-                    selectionArgs,
-                    null
-            );
-        }
+        cursor = getContentResolver().query(
+                uri,
+                null,
+                selection,
+                selectionArgs,
+                null
+        );
+
         if (cursor.moveToFirst()){
             int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
             int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity
 
             tvTodayTemp.setText(Float.toString(cursor.getFloat(temperatureIndex)));
             tvTodayWeatherType.setText(cursor.getString(descriptionIndex));
-            tvTodayHumidity.setText(cursor.getInt(humidityIndex));
+            tvTodayHumidity.setText(Integer.toString(cursor.getInt(humidityIndex)));
             tvTodayWind.setText(Float.toString(cursor.getFloat(windSpeedIndex))
                     + " ," + Float.toString(cursor.getFloat(degreesIndex)));
         }
@@ -182,11 +182,9 @@ public class MainActivity extends AppCompatActivity
                 displayingLocationIndex = id; // здесь id от 1 и дальше
             }
         }
-        updateLocationWeather(displayingLocationIndex);
-        setTodayWeather();
 
         navigationView.post(onNavChange);
-        getSupportActionBar().setTitle(favoriteLocationList.get(displayingLocationIndex).getCityName());
+        getSupportActionBar().setTitle(locationList.get(displayingLocationIndex).getCityName());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -203,15 +201,15 @@ public class MainActivity extends AppCompatActivity
 
         MenuItem location = menu.getItem(LOCATION_ID);
         Menu menuLocation = location.getSubMenu();
-        menuLocation.getItem(0).setTitle(favoriteLocationList.get(0).getCityName());
+        menuLocation.getItem(0).setTitle(locationList.get(0).getCityName());
 
         MenuItem favourites = menu.getItem(FAVOURITES_ID);
         Menu menuFavourites = favourites.getSubMenu();
         menuFavourites.removeGroup(GROUP_ID);
-        for (int i = 1; i < favoriteLocationList.size(); i++) {
+        for (int i = 1; i < locationList.size(); i++) {
 //            final int ITEM_ID = i;
             final MenuItem menuItem = menuFavourites
-                    .add(GROUP_ID, i, ITEM_ORDER + i, favoriteLocationList.get(i).getCityName())
+                    .add(GROUP_ID, i, ITEM_ORDER + i, locationList.get(i).getCityName())
                     .setIcon(R.drawable.ic_place_black_24dp)
                     .setActionView(R.layout.action_view_delete);
 
@@ -239,7 +237,7 @@ public class MainActivity extends AppCompatActivity
                         .getItem(0);
                 menuItem.setChecked(true);
             }
-            else if (displayingLocationIndex <= favoriteLocationList.size()){
+            else if (displayingLocationIndex <= locationList.size()){
                 clearCheckedPosition();
                 MenuItem menuItem = navigationView.getMenu()
                         .getItem(1)
@@ -256,7 +254,7 @@ public class MainActivity extends AppCompatActivity
                 .getSubMenu()
                 .getItem(0)
                 .setChecked(false);
-        for (int i = 0; i < favoriteLocationList.size() - 1; i++) {
+        for (int i = 0; i < locationList.size() - 1; i++) {
             navigationView.getMenu()
                     .getItem(1)
                     .getSubMenu()
@@ -265,8 +263,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private ArrayList<Location> getFavoriteLocations(){
-        ArrayList<Location> locationList = new ArrayList<>();
+    private void getFavoriteLocations(ArrayList<Location> locationList){
 
         Uri uri = Contract.LocationEntry.CONTENT_URI;
 
@@ -277,7 +274,7 @@ public class MainActivity extends AppCompatActivity
                 null,
                 null);
 
-        int i = 0;
+        int i = 1;
         if (cursor.moveToFirst()){
             int idIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
             int cityNameIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
@@ -301,29 +298,69 @@ public class MainActivity extends AppCompatActivity
             } while (cursor.moveToNext());
         }
         cursor.close();
-
-        return locationList;
     }
 
-    private Location getCurrentLocationFromGps(){
+    private void updateCurrentLocationFromGps(){
         // TODO: 25.08.18 get coordinates from gps
         Location location = new Location();
         location.setCoordLat(55.75222f);
         location.setCoordLong(37.615555f);
-        return location;
+
+        Network.getInstance().requestTodayWeather(location.getCoordLat(), location.getCoordLon());
     }
 
-    private void updateLocationWeather(Location location) {
-        float coordLat = location.getCoordLat();
-        float coordLon = location.getCoordLon();
-        if (coordLat != 0 && coordLon != 0){
-            Network.getInstance().requestTodayWeather(coordLat, coordLon);
-        } else if (location.getLocationId() != 0){
-            Network.getInstance().requestTodayWeather(location.getLocationId());
-        } else if (location.getCityName().length() != 0){
-            Network.getInstance().requestTodayWeather(location.getCityName());
+    private void addCurrentLocationFromPref(ArrayList<Location> locationList){
+        Location location = new Location();
+        AppPreferences preferences = new AppPreferences(this);
+        long cityId = preferences.getPreference(AppPreferences.LAST_CURRENT_LOCATION_KEY, MOSCOW_ID);
+        location.setLocationId(cityId);
+        location.setCityName(getString(R.string.current_location));
+        setLocationById(location);
+        locationList.add(location);
+    }
+
+    private void setLocationById(Location location){
+        Uri uri = Contract.LocationEntry.CONTENT_URI;
+        String selection = Contract.LocationEntry.COLUMN_LOCATION_ID;
+        String[] selectionArgs = new String [] {Long.toString(location.getLocationId())};
+
+        Cursor cursor = getContentResolver().query(
+                uri,
+                null,
+                selection,
+                selectionArgs,
+                null
+        );
+
+        int locationIdIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
+        int cityNameIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
+        int countryNameIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COUNTRY_NAME);
+        int coordLatIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LAT);
+        int coordLonIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LONG);
+        int todayLastUpdateIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE);
+        int forecastLastUpdateIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
+
+        if (cursor.moveToFirst()){
+            location.setCityName(cursor.getString(cityNameIndex));
+            location.setCountryName(cursor.getString(countryNameIndex));
+            location.setCoordLat(cursor.getFloat(coordLatIndex));
+            location.setCoordLong(cursor.getFloat(coordLonIndex));
+            location.setTodayLastUpdate(cursor.getLong(todayLastUpdateIndex));
+            location.setForecastLastUpdate(cursor.getLong(forecastLastUpdateIndex));
         }
     }
+//
+//    private void updateLocationWeather(Location location) {
+//        float coordLat = location.getCoordLat();
+//        float coordLon = location.getCoordLon();
+//        if (coordLat != 0 && coordLon != 0){
+//
+//        } else if (location.getLocationId() != 0){
+//            Network.getInstance().requestTodayWeather(location.getLocationId());
+//        } else if (location.getCityName().length() != 0){
+//            Network.getInstance().requestTodayWeather(location.getCityName());
+//        }
+//    }
 
     private void addFavoriteLocationsFromDB(ArrayList<Location> arrayList) {
 //        arrayList.add(1, "Saint Petersburg"); // index > 0 favourite
@@ -348,7 +385,7 @@ public class MainActivity extends AppCompatActivity
 
         AppPreferences preferences = new AppPreferences(this);
         preferences.savePreference(LAST_LOCATION_KEY,
-                favoriteLocationList.get(displayingLocationIndex).getCityName());
+                locationList.get(displayingLocationIndex).getCityName());
     }
 
     public String getLastDisplayingLocation() {
@@ -367,35 +404,43 @@ public class MainActivity extends AppCompatActivity
         long todayLastUdpate = System.currentTimeMillis();
         long forecastLastUpdate = 0;
 
-        currentLocation.setLocationId(locationId);
-        
-    }
+        Location location = locationList.get(0);
+        location.setLocationId(locationId);
+        location.setCityName(cityName);
+        location.setCountryName(countryName);
+        location.setCoordLong(coordLon);
+        location.setCoordLat(coordLat);
+        location.setTodayLastUpdate(todayLastUdpate);
+        location.setForecastLastUpdate(forecastLastUpdate);
 
-    @Override
-    public void sendToDbNewLocation(WeatherRequest weatherRequest) {
-        long locationId = weatherRequest.getId();
-        String cityName = weatherRequest.getName();
-        String countryName = weatherRequest.getSys().getCountry();
-        float coordLon = weatherRequest.getCoord().getLon();
-        float coordLat = weatherRequest.getCoord().getLat();
-        long todayLastUdpate = System.currentTimeMillis();
-        long forecastLastUpdate = 0;
-
-        ContentValues cv = new ContentValues();
-        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, locationId);
-        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, cityName);
-        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, countryName);
-        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, coordLon);
-        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, coordLat);
-        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, todayLastUdpate);
-        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, forecastLastUpdate);
-
-        Uri uri = Contract.LocationEntry.CONTENT_URI;
-        getContentResolver().insert(uri, cv);
-
-        favoriteLocationList = getFavoriteLocations();
         updateDrawersItem();
     }
+
+//    @Override
+//    public void sendToDbNewLocation(WeatherRequest weatherRequest) {
+//        long locationId = weatherRequest.getId();
+//        String cityName = weatherRequest.getName();
+//        String countryName = weatherRequest.getSys().getCountry();
+//        float coordLon = weatherRequest.getCoord().getLon();
+//        float coordLat = weatherRequest.getCoord().getLat();
+//        long todayLastUdpate = System.currentTimeMillis();
+//        long forecastLastUpdate = 0;
+//
+//        ContentValues cv = new ContentValues();
+//        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, locationId);
+//        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, cityName);
+//        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, countryName);
+//        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, coordLon);
+//        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, coordLat);
+//        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, todayLastUdpate);
+//        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, forecastLastUpdate);
+//
+//        Uri uri = Contract.LocationEntry.CONTENT_URI;
+//        getContentResolver().insert(uri, cv);
+//
+//        locationList = getFavoriteLocations();
+//        updateDrawersItem();
+//    }
 
     @Override
     public void sendToDbTodayWeather(WeatherRequest weatherRequest) {
@@ -424,22 +469,25 @@ public class MainActivity extends AppCompatActivity
 
         Cursor query = getContentResolver().query(uri, null, selection, selectionArgs, null);
         if (query.moveToFirst()){
-            getContentResolver().update(uri, cv, selection, selectionArgs);
-        }
-        else {
+            getContentResolver().delete(uri, selection, selectionArgs);
             getContentResolver().insert(uri, cv);
         }
+        else {
+            Uri u = getContentResolver().insert(uri, cv);
+            Log.d(TAG, CLASS + u.toString());
+        }
         query.close();
+        setTodayWeather();
     }
 
-    @Override
-    public void sendToDbForecastWeather(WeatherRequest weatherRequest) {
+//    @Override
+//    public void sendToDbForecastWeather(WeatherRequest weatherRequest) {
+//
+//    }
 
-    }
-
-    private void addNewFavoriteLocation(){
-        Location saintPetersburg = new Location();
-        saintPetersburg.setCityName("Saint Petersburg");
-        Network.getInstance().requestTodayWeather(saintPetersburg.getCityName());
-    }
+//    private void addNewFavoriteLocation(){
+//        Location saintPetersburg = new Location();
+//        saintPetersburg.setCityName("Saint Petersburg");
+//        Network.getInstance().requestTodayWeather(saintPetersburg.getCityName());
+//    }
 }

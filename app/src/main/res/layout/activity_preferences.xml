@@ -119,4 +119,13 @@
         android:layout_marginTop="@dimen/field_margin_standard"
         />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_query"
+        android:text="query"
+        />
+
+
+
 </LinearLayout>

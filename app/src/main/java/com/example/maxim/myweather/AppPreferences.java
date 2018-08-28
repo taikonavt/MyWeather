@@ -11,7 +11,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class AppPreferences implements PrefsHelper{
-    public static final String LAST_LOCATION_KEY = "last_location_key";
+    public static final String LAST_CURRENT_LOCATION_KEY = "last_current_location_key";
     public static final String UNITS_KEY = "units_key";
     public static final String UNITS_IMP = "imperial";
     public static final String UNITS_METRIC = "metric";
@@ -32,8 +32,19 @@ public class AppPreferences implements PrefsHelper{
     }
 
     @Override
+    public int getPreference(String keyPref, int ifNull) {
+        return sharedPreferences.getInt(keyPref, ifNull);
+    }
+
+
+    @Override
     public void savePreference(String keyPref, String value) {
         sharedPreferences.edit().putString(keyPref, value).apply();
+    }
+
+    @Override
+    public void savePreference(String keyPref, int value) {
+        sharedPreferences.edit().putInt(keyPref, value).apply();
     }
 
     @Override

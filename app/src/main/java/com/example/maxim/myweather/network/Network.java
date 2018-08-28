@@ -14,6 +14,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Network {
+    public static final String TAG = "myTag";
+    public static final String CLASS = Network.class.getSimpleName() + " ";
     private static Network instance = null;
     private static final String BASE_URL = "https://api.openweathermap.org/";
     private OpenWeather openWeather;
@@ -49,6 +51,7 @@ public class Network {
                     public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
                         if (response.body() != null) {
                             MainActivity mainActivity = (MainActivity) activity;
+                            mainActivity.updateCurrentLocation(response.body());
                             mainActivity.sendToDbTodayWeather(response.body());
                         }
                     }
@@ -61,58 +64,58 @@ public class Network {
                 });
     }
 
-    public void requestTodayWeather(long locationId){
-        AppPreferences appPreferences = new AppPreferences(activity);
-        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
-        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+//    public void requestTodayWeather(long locationId){
+//        AppPreferences appPreferences = new AppPreferences(activity);
+//        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+//        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+//
+//        openWeather.loadTodayWeather(locationId, units, keyApi)
+//                .enqueue(new Callback<WeatherRequest>() {
+//                    @Override
+//                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+//                        if (response.body() != null) {
+//                            MainActivity mainActivity = (MainActivity) activity;
+//                            mainActivity.sendToDbTodayWeather(response.body());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+//                        Toast.makeText(activity, activity.getString(R.string.network_error),
+//                                Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//    }
 
-        openWeather.loadTodayWeather(locationId, units, keyApi)
-                .enqueue(new Callback<WeatherRequest>() {
-                    @Override
-                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
-                        if (response.body() != null) {
-                            MainActivity mainActivity = (MainActivity) activity;
-                            mainActivity.sendToDbTodayWeather(response.body());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                        Toast.makeText(activity, activity.getString(R.string.network_error),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    public void requestTodayWeather(String cityName){
-        AppPreferences appPreferences = new AppPreferences(activity);
-        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
-        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
-
-        openWeather.loadTodayWeather(cityName, units, keyApi)
-                .enqueue(new Callback<WeatherRequest>() {
-                    @Override
-                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
-                        if (response.body() != null) {
-                            MainActivity mainActivity = (MainActivity) activity;
-                            mainActivity.sendToDbNewLocation(response.body());
-                            mainActivity.sendToDbTodayWeather(response.body());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                        Toast.makeText(activity, activity.getString(R.string.network_error),
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-    }
+//    public void requestTodayWeather(String cityName){
+//        AppPreferences appPreferences = new AppPreferences(activity);
+//        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+//        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+//
+//        openWeather.loadTodayWeather(cityName, units, keyApi)
+//                .enqueue(new Callback<WeatherRequest>() {
+//                    @Override
+//                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+//                        if (response.body() != null) {
+//                            MainActivity mainActivity = (MainActivity) activity;
+//                            mainActivity.sendToDbNewLocation(response.body());
+//                            mainActivity.sendToDbTodayWeather(response.body());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+//                        Toast.makeText(activity, activity.getString(R.string.network_error),
+//                                Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//    }
 
     public interface DbCallable{
         void updateCurrentLocation(WeatherRequest weatherRequest);
-        void sendToDbNewLocation(WeatherRequest weatherRequest);
+//        void sendToDbNewLocation(WeatherRequest weatherRequest);
         void sendToDbTodayWeather(WeatherRequest weatherRequest);
-        void sendToDbForecastWeather(WeatherRequest weatherRequest);
+//        void sendToDbForecastWeather(WeatherRequest weatherRequest);
     }
 }
 

@@ -61,6 +61,7 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_large"
         android:textColor="@color/colorTextLight"
+        android:text="12345"
         android:layout_marginTop="@dimen/text_margin_small"
         app:layout_constraintTop_toBottomOf="@id/tv_main_info_field_wind"
         app:layout_constraintLeft_toLeftOf="parent"

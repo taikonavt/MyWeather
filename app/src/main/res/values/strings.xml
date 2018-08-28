@@ -124,4 +124,7 @@
     <!-- Network.class -->
     <string name="network_error">Сервер недоступен</string>
 
+    <!-- MainActivity.class -->
+    <string name="current_location">Текущее местоположение</string>
+
 </resources>

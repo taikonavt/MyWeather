@@ -1,5 +1,7 @@
 package com.example.maxim.myweather;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,17 +10,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.maxim.myweather.database.Contract;
 
 /**
  * Created by maxim on 05.08.18.
  */
 
 public class PreferenceActivity extends AppCompatActivity {
-    private static final String TAG = PreferenceActivity.class.getSimpleName();
+    private static final String TAG = "myTag";
+    private static final String CLASS = PreferenceActivity.class.getSimpleName() + " ";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,6 +57,48 @@ public class PreferenceActivity extends AppCompatActivity {
             public void onClick(View view) {
                 showAboutDev();
             }
+        });
+
+        Button button = (Button) findViewById(R.id.button_query);
+        button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, CLASS + "onClick();");
+                Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
+                String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+                String[] selectionArgs = new String[] {"524901"};
+                Cursor cursor = getContentResolver().query(
+                        uri,
+                        null,
+                        selection,
+                        selectionArgs,
+                        null
+                );
+
+                if (cursor.moveToFirst()){
+                    int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
+                    int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
+                    int descriptionIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC);
+                    int temperatureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE);
+                    int humidityIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_HUMIDITY);
+                    int pressureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_PRESSURE);
+                    int windSpeedIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WIND_SPEED);
+                    int degreesIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_DEGREES);
+
+                    do {
+                        Log.d(TAG, CLASS +
+                            Long.toString(cursor.getLong(locationIdIndex)) + " " +
+                              Integer.toString(cursor.getInt(weatherIdIndex)) +  " " +
+                              cursor.getString(descriptionIndex) + " " +
+                              Float.toString(cursor.getFloat(temperatureIndex)) + " " +
+                                Integer.toString(cursor.getInt(humidityIndex)) + " " +
+                                Integer.toString(cursor.getInt(pressureIndex)) + " " +
+                                Float.toString(cursor.getFloat(windSpeedIndex)) + " " +
+                                Float.toString(cursor.getFloat(degreesIndex))
+                        );
+                    } while (cursor.moveToNext());
+                    }
+                }
         });
 
         Spinner language = (Spinner) findViewById(R.id.sp_activity_preferences_language);

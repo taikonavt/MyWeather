@@ -66,13 +66,13 @@ public class WeatherProvider extends ContentProvider {
                 break;
             }
             case CODE_TODAY_WEATHER:{
-                String location = uri.getLastPathSegment();
-                String[] args = new String[] {location};
+//                String location = uri.getLastPathSegment();
+//                String[] args = new String[] {location};
                 cursor = db.query(
                         Contract.TodayWeatherEntry.TABLE_NAME,
                         columns,
                         selection + " = ?",
-                        args,
+                        selectionArgs,
                         null,
                         null,
                         sortOrder
@@ -167,7 +167,10 @@ public class WeatherProvider extends ContentProvider {
         if (numRowsInserted != 0){
             getContext().getContentResolver().notifyChange(uri, null);
         }
-        return null;
+        Uri u = uri.buildUpon()
+                .appendPath(Long.toString(numRowsInserted))
+                .build();
+        return u;
     }
 
     @Override
