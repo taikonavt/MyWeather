@@ -90,6 +90,28 @@ public class Network {
                 });
     }
 
+    public void requestForecastWeather(long locationId){
+        AppPreferences preferences = new AppPreferences(activity);
+        String units = preferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+        String keyApi = preferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+
+        openWeather.loadForecastWeather(locationId, units, forecastDays, keyApi)
+                .enqueue(new Callback<ForecastWeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<ForecastWeatherRequest> call, Response<ForecastWeatherRequest> response) {
+                        MainActivity mainActivity = (MainActivity) activity;
+                        mainActivity.sendToDbForecastWeather(response.body());
+                    }
+
+                    @Override
+                    public void onFailure(Call<ForecastWeatherRequest> call, Throwable t) {
+                        Log.d(TAG, CLASS + "requestForecastWeather(); onFailure();");
+                        Toast.makeText(activity, activity.getString(R.string.network_error),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
     public void requestTodayWeather(long locationId){
         AppPreferences appPreferences = new AppPreferences(activity);
         String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);

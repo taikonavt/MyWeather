@@ -2,7 +2,7 @@ package com.example.maxim.myweather;
 
 import com.example.maxim.myweather.database.WeatherProvider;
 
-public class Location {
+public class Place {
     private long id;
     private String cityName;
     private String countryName;
@@ -11,7 +11,7 @@ public class Location {
     private long todayLastUpdate;
     private long forecastLastUpdate;
 
-    public Location(){
+    public Place(){
         id = 0;
         cityName = "";
         countryName = "";

@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.maxim.myweather.Location;
 import com.example.maxim.myweather.database.Contract.*;
 
 public class DatabaseHelper extends SQLiteOpenHelper {

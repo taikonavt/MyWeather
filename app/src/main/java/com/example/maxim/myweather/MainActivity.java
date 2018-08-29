@@ -1,13 +1,20 @@
 package com.example.maxim.myweather;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -41,9 +48,10 @@ public class MainActivity extends AppCompatActivity
 
 
     private static final String LAST_LOCATION_KEY = "last_location_key";
+    private static final int PERMISSION_REQUEST_CODE = 10;
     private static final int MOSCOW_ID = 524901;
     private static final int ID_LOADER = 1111;
-    private ArrayList<Location> locationList;
+    private ArrayList<Place> placeList;
     private int displayingLocationIndex;
 
     private TextView tvTodayTemp;
@@ -52,6 +60,8 @@ public class MainActivity extends AppCompatActivity
     private TextView tvTodayHumidity;
     private NavigationView navigationView;
     private ForecastListAdapter adapter;
+    private LocationManager locationManager;
+    String provider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +72,9 @@ public class MainActivity extends AppCompatActivity
         Network.initNetwork(this);
 
         displayingLocationIndex = 0;
-        locationList = new ArrayList<>();
-        addCurrentLocationFromPref(locationList);
-        getFavoriteLocations(locationList);
+        placeList = new ArrayList<>();
+        addCurrentLocationFromPref(placeList);
+        getFavoriteLocations(placeList);
 
         initGui();
         setTodayWeather();
@@ -104,14 +114,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setTodayWeather() {
-        getSupportActionBar().setTitle(locationList.get(displayingLocationIndex).getCityName());
+        getSupportActionBar().setTitle(placeList.get(displayingLocationIndex).getCityName());
 
         Cursor cursor;
 
         Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
         String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
         String[] selectionArgs = new String[]{Long.toString(
-                locationList.get(displayingLocationIndex).getLocationId()
+                placeList.get(displayingLocationIndex).getLocationId()
         )};
 
         cursor = getContentResolver().query(
@@ -193,14 +203,16 @@ public class MainActivity extends AppCompatActivity
                 break;
             default: {
                 displayingLocationIndex = id; // здесь id от 1 и дальше
-                long locationId = locationList.get(displayingLocationIndex).getLocationId();
-                Log.d(TAG, CLASS + "onNavigationItemSelected() " + locationId);
-                Network.getInstance().requestTodayWeather(locationId);
             }
         }
+        long locationId = placeList.get(displayingLocationIndex).getLocationId();
+        Log.d(TAG, CLASS + "onNavigationItemSelected() " + locationId);
+        Network.getInstance().requestTodayWeather(locationId);
+        Network.getInstance().requestForecastWeather(locationId);
+        getSupportLoaderManager().restartLoader(ID_LOADER, null, this);
 
         navigationView.post(onNavChange);
-        getSupportActionBar().setTitle(locationList.get(displayingLocationIndex).getCityName());
+        getSupportActionBar().setTitle(placeList.get(displayingLocationIndex).getCityName());
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -217,15 +229,15 @@ public class MainActivity extends AppCompatActivity
 
         MenuItem location = menu.getItem(LOCATION_ID);
         Menu menuLocation = location.getSubMenu();
-        menuLocation.getItem(0).setTitle(locationList.get(0).getCityName());
+        menuLocation.getItem(0).setTitle(placeList.get(0).getCityName());
 
         MenuItem favourites = menu.getItem(FAVOURITES_ID);
         Menu menuFavourites = favourites.getSubMenu();
         menuFavourites.removeGroup(GROUP_ID);
-        for (int i = 1; i < locationList.size(); i++) {
+        for (int i = 1; i < placeList.size(); i++) {
 //            final int ITEM_ID = i;
             final MenuItem menuItem = menuFavourites
-                    .add(GROUP_ID, i, ITEM_ORDER + i, locationList.get(i).getCityName())
+                    .add(GROUP_ID, i, ITEM_ORDER + i, placeList.get(i).getCityName())
                     .setIcon(R.drawable.ic_place_black_24dp)
                     .setActionView(R.layout.action_view_delete);
 
@@ -253,7 +265,7 @@ public class MainActivity extends AppCompatActivity
                         .getItem(0);
                 menuItem.setChecked(true);
             }
-            else if (displayingLocationIndex <= locationList.size()){
+            else if (displayingLocationIndex <= placeList.size()){
                 clearCheckedPosition();
                 MenuItem menuItem = navigationView.getMenu()
                         .getItem(1)
@@ -270,7 +282,7 @@ public class MainActivity extends AppCompatActivity
                 .getSubMenu()
                 .getItem(0)
                 .setChecked(false);
-        for (int i = 0; i < locationList.size() - 1; i++) {
+        for (int i = 0; i < placeList.size() - 1; i++) {
             navigationView.getMenu()
                     .getItem(1)
                     .getSubMenu()
@@ -279,7 +291,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void getFavoriteLocations(ArrayList<Location> locationList){
+    private void getFavoriteLocations(ArrayList<Place> placeList){
 
         Uri uri = Contract.LocationEntry.CONTENT_URI;
 
@@ -301,15 +313,15 @@ public class MainActivity extends AppCompatActivity
             int forecastIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
 
             do {
-                Location location = new Location();
-                location.setLocationId(cursor.getInt(idIndex));
-                location.setCityName(cursor.getString(cityNameIndex));
-                location.setCountryName(cursor.getString(countryIndex));
-                location.setCoordLat(cursor.getFloat(latitudeIndex));
-                location.setCoordLat(cursor.getFloat(longitudeIndex));
-                location.setTodayLastUpdate(cursor.getLong(todayIndex));
-                location.setForecastLastUpdate(cursor.getLong(forecastIndex));
-                locationList.add(i, location);
+                Place place = new Place();
+                place.setLocationId(cursor.getInt(idIndex));
+                place.setCityName(cursor.getString(cityNameIndex));
+                place.setCountryName(cursor.getString(countryIndex));
+                place.setCoordLat(cursor.getFloat(latitudeIndex));
+                place.setCoordLat(cursor.getFloat(longitudeIndex));
+                place.setTodayLastUpdate(cursor.getLong(todayIndex));
+                place.setForecastLastUpdate(cursor.getLong(forecastIndex));
+                placeList.add(i, place);
                 i++;
             } while (cursor.moveToNext());
         }
@@ -317,27 +329,97 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateCurrentLocationFromGps(){
-        // TODO: 25.08.18 get coordinates from gps
-        Location location = new Location();
-        location.setCoordLat(55.75222f);
-        location.setCoordLong(37.615555f);
+        Place place = new Place();
 
-        Network.getInstance().requestTodayWeather(location.getCoordLat(), location.getCoordLon());
-        Network.getInstance().requestForecastWeather(location.getCoordLat(), location.getCoordLon());
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        || ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            requestLocation(place);
+        } else {
+            requestLocationPermissions();
+        }
+
+//        place.setCoordLat(55.75222f);
+//        place.setCoordLong(37.615555f);
+
+        Network.getInstance().requestTodayWeather(place.getCoordLat(), place.getCoordLon());
+        Network.getInstance().requestForecastWeather(place.getCoordLat(), place.getCoordLon());
     }
 
-    private void addCurrentLocationFromPref(ArrayList<Location> locationList){
-        Location location = new Location();
+    private void requestLocation(final Place place) {
+        // Если пермиссии все таки нет - то просто выйдем, приложение не имеет смысла
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+
+        // получим наиболее подходящий провайдер геолокации по критериям
+        // Но можно и самому назначать какой провайдер использовать.
+        // В основном это LocationManager.GPS_PROVIDER или LocationManager.NETWORK_PROVIDER
+        // но может быть и LocationManager.PASSIVE_PROVIDER, это когда координаты уже кто-то недавно получил.
+        provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null) {
+            // Будем получать геоположение через каждые 10 секунд или каждые 10 метров
+            locationManager.requestLocationUpdates(provider, 10000, 10, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    place.setCoordLat((float) location.getLatitude());
+                    place.setCoordLong((float) location.getLongitude());
+                }
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+                @Override
+                public void onProviderEnabled(String provider) {
+                }
+                @Override
+                public void onProviderDisabled(String provider) {
+                }
+            });
+        }
+    }
+
+    // Запрос пермиссии для геолокации
+    private void requestLocationPermissions() {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
+            // Запросим эти две пермиссии у пользователя
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    },
+                    PERMISSION_REQUEST_CODE);
+        }
+    }
+
+
+    // Это результат запроса у пользователя пермиссии
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {   // Это та самая пермиссия, что мы запрашивали?
+            if (grantResults.length == 2 &&
+                    (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+                // Все препоны пройдены и пермиссия дана
+                requestLocation(placeList.get(0));
+            }
+        }
+    }
+
+    private void addCurrentLocationFromPref(ArrayList<Place> placeList){
+        Place place = new Place();
         AppPreferences preferences = new AppPreferences(this);
         long cityId = preferences.getPreference(AppPreferences.LAST_CURRENT_LOCATION_KEY, MOSCOW_ID);
-        location.setLocationId(cityId);
-        location.setCityName(getString(R.string.current_location));
-        setLocationById(location);
-        locationList.add(location);
+        place.setLocationId(cityId);
+        place.setCityName(getString(R.string.current_location));
+        setLocationById(place);
+        placeList.add(place);
     }
 
-    private void setLocationById(Location location){
-        String locationId = Long.toString(location.getLocationId());
+    private void setLocationById(Place place){
+        String locationId = Long.toString(place.getLocationId());
         Uri uri = Contract.LocationEntry.CONTENT_URI.buildUpon()
                 .appendPath(locationId)
                 .build();
@@ -359,12 +441,12 @@ public class MainActivity extends AppCompatActivity
         int forecastLastUpdateIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
 
         if (cursor.moveToFirst()){
-            location.setCityName(cursor.getString(cityNameIndex));
-            location.setCountryName(cursor.getString(countryNameIndex));
-            location.setCoordLat(cursor.getFloat(coordLatIndex));
-            location.setCoordLong(cursor.getFloat(coordLonIndex));
-            location.setTodayLastUpdate(cursor.getLong(todayLastUpdateIndex));
-            location.setForecastLastUpdate(cursor.getLong(forecastLastUpdateIndex));
+            place.setCityName(cursor.getString(cityNameIndex));
+            place.setCountryName(cursor.getString(countryNameIndex));
+            place.setCoordLat(cursor.getFloat(coordLatIndex));
+            place.setCoordLong(cursor.getFloat(coordLonIndex));
+            place.setTodayLastUpdate(cursor.getLong(todayLastUpdateIndex));
+            place.setForecastLastUpdate(cursor.getLong(forecastLastUpdateIndex));
         }
     }
 
@@ -383,7 +465,7 @@ public class MainActivity extends AppCompatActivity
 
         AppPreferences preferences = new AppPreferences(this);
         preferences.savePreference(LAST_LOCATION_KEY,
-                locationList.get(displayingLocationIndex).getCityName());
+                placeList.get(displayingLocationIndex).getCityName());
     }
 
     @Override
@@ -396,14 +478,14 @@ public class MainActivity extends AppCompatActivity
         long todayLastUdpate = System.currentTimeMillis();
         long forecastLastUpdate = 0;
 
-        Location location = locationList.get(0);
-        location.setLocationId(locationId);
-        location.setCityName(cityName);
-        location.setCountryName(countryName);
-        location.setCoordLong(coordLon);
-        location.setCoordLat(coordLat);
-        location.setTodayLastUpdate(todayLastUdpate);
-        location.setForecastLastUpdate(forecastLastUpdate);
+        Place place = placeList.get(0);
+        place.setLocationId(locationId);
+        place.setCityName(cityName);
+        place.setCountryName(countryName);
+        place.setCoordLong(coordLon);
+        place.setCoordLat(coordLat);
+        place.setTodayLastUpdate(todayLastUdpate);
+        place.setForecastLastUpdate(forecastLastUpdate);
 
         Log.d(TAG, CLASS + "updateCurrentLocation(); " + cityName);
 
@@ -432,7 +514,7 @@ public class MainActivity extends AppCompatActivity
 //        Uri uri = Contract.LocationEntry.CONTENT_URI;
 //        getContentResolver().insert(uri, cv);
 //
-//        locationList = getFavoriteLocations();
+//        placeList = getFavoriteLocations();
 //        updateDrawersItem();
 //    }
 
@@ -539,7 +621,7 @@ public class MainActivity extends AppCompatActivity
             case ID_LOADER:
                 Uri uri = Contract.ForecastWeatherEntry.CONTENT_URI
                         .buildUpon()
-                        .appendPath(Long.toString(locationList.get(displayingLocationIndex).getLocationId()))
+                        .appendPath(Long.toString(placeList.get(displayingLocationIndex).getLocationId()))
                         .build();
                 String sortOrder= Contract.ForecastWeatherEntry.COLUMN_DATE + " ASC";
 
@@ -566,7 +648,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 //    private void addNewFavoriteLocation(){
-//        Location saintPetersburg = new Location();
+//        Place saintPetersburg = new Place();
 //        saintPetersburg.setCityName("Saint Petersburg");
 //        Network.getInstance().requestTodayWeather(saintPetersburg.getCityName());
 //    }
