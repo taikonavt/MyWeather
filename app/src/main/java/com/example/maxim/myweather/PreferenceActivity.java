@@ -70,9 +70,10 @@ public class PreferenceActivity extends AppCompatActivity {
                 Log.d(TAG, CLASS + "onClick();");
 
 //                addLocation();
-                showLocation();
+//                showLocation();
 //                showTodayWeather();
 //                askDB();
+                showForecast();
                 }
         });
 
@@ -256,6 +257,59 @@ public class PreferenceActivity extends AppCompatActivity {
                         Float.toString(cursor.getFloat(coordLonIndex)) + " " +
                         Long.toString(cursor.getLong(todayIndex)) + " " +
                         Long.toString(cursor.getLong(forecastIndex))
+                );
+            } while (cursor.moveToNext());
+        }
+    }
+
+    private void showForecast(){
+        Uri uri = Contract.ForecastWeatherEntry.CONTENT_URI
+                .buildUpon()
+                .appendPath("524901")
+                .build();
+
+        Cursor cursor = getContentResolver().query(
+                uri,
+                null,
+                null,
+                null,
+                null);
+
+        int locationIdIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID);
+        int dateIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_DATE);
+        int weatherIdIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_WEATHER_ID);
+        int descriptionIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_SHORT_DESC);
+        int minIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_MIN_TEMP);
+        int maxIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_MAX_TEMP);
+        int humidityIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_HUMIDITY);
+        int pressureIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_PRESSURE);
+        int speedIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_WIND_SPEED);
+        int degreesIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_DEGREES);
+
+        if (cursor.moveToFirst()){
+            do {
+                long locationId = cursor.getLong(locationIdIndex);
+                long date = cursor.getLong(dateIndex);
+                int weatherId = cursor.getInt(weatherIdIndex);
+                String description = cursor.getString(descriptionIndex);
+                float min = cursor.getFloat(minIndex);
+                float max = cursor.getFloat(maxIndex);
+                int humidity = cursor.getInt(humidityIndex);
+                float pressure = cursor.getFloat(pressureIndex);
+                float speed = cursor.getFloat(speedIndex);
+                float degrees = cursor.getFloat(degreesIndex);
+
+                Log.d(TAG, CLASS + "showForecast(); " +
+                locationId + " " +
+                        date + " " +
+                        weatherId +  " " +
+                        description +  " " +
+                        min + " " +
+                        max +  " " +
+                        humidity + " " +
+                        pressure +  " " +
+                        speed +  " " +
+                        degrees
                 );
             } while (cursor.moveToNext());
         }

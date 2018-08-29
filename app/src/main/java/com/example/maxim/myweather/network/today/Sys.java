@@ -1,4 +1,4 @@
-package com.example.maxim.myweather.network;
+package com.example.maxim.myweather.network.today;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

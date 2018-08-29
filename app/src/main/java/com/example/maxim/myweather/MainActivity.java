@@ -22,7 +22,8 @@ import android.widget.TextView;
 
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.network.Network;
-import com.example.maxim.myweather.network.WeatherRequest;
+import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
+import com.example.maxim.myweather.network.today.TodayWeatherRequest;
 
 import java.util.ArrayList;
 
@@ -313,6 +314,7 @@ public class MainActivity extends AppCompatActivity
         location.setCoordLong(37.615555f);
 
         Network.getInstance().requestTodayWeather(location.getCoordLat(), location.getCoordLon());
+        Network.getInstance().requestForecastWeather(location.getCoordLat(), location.getCoordLon());
     }
 
     private void addCurrentLocationFromPref(ArrayList<Location> locationList){
@@ -376,12 +378,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void updateCurrentLocation(WeatherRequest weatherRequest) {
-        long locationId = weatherRequest.getId();
-        String cityName = weatherRequest.getName();
-        String countryName = weatherRequest.getSys().getCountry();
-        float coordLon = weatherRequest.getCoord().getLon();
-        float coordLat = weatherRequest.getCoord().getLat();
+    public void updateCurrentLocation(TodayWeatherRequest todayWeatherRequest) {
+        long locationId = todayWeatherRequest.getId();
+        String cityName = todayWeatherRequest.getName();
+        String countryName = todayWeatherRequest.getSys().getCountry();
+        float coordLon = todayWeatherRequest.getCoord().getLon();
+        float coordLat = todayWeatherRequest.getCoord().getLat();
         long todayLastUdpate = System.currentTimeMillis();
         long forecastLastUpdate = 0;
 
@@ -394,11 +396,13 @@ public class MainActivity extends AppCompatActivity
         location.setTodayLastUpdate(todayLastUdpate);
         location.setForecastLastUpdate(forecastLastUpdate);
 
+        Log.d(TAG, CLASS + "updateCurrentLocation(); " + cityName);
+
         updateDrawersItem();
     }
 
 //    @Override
-//    public void sendToDbNewLocation(WeatherRequest weatherRequest) {
+//    public void sendToDbNewLocation(ForecastWeatherRequest weatherRequest) {
 //        long locationId = weatherRequest.getId();
 //        String cityName = weatherRequest.getName();
 //        String countryName = weatherRequest.getSys().getCountry();
@@ -424,15 +428,15 @@ public class MainActivity extends AppCompatActivity
 //    }
 
     @Override
-    public void sendToDbTodayWeather(WeatherRequest weatherRequest) {
-        long locationId = weatherRequest.getId();
-        int weatherId = weatherRequest.getWeather()[0].getId();
-        String shortDescription = weatherRequest.getWeather()[0].getDescription();
-        float temperature = weatherRequest.getMain().getTemp();
-        int humidity = weatherRequest.getMain().getHumidity();
-        int pressure = weatherRequest.getMain().getPressure();
-        float windSpeed = weatherRequest.getWind().getSpeed();
-        float windDegrees = weatherRequest.getWind().getDeg();
+    public void sendToDbTodayWeather(TodayWeatherRequest todayWeatherRequest) {
+        long locationId = todayWeatherRequest.getId();
+        int weatherId = todayWeatherRequest.getWeather()[0].getId();
+        String shortDescription = todayWeatherRequest.getWeather()[0].getDescription();
+        float temperature = todayWeatherRequest.getMain().getTemp();
+        int humidity = todayWeatherRequest.getMain().getHumidity();
+        int pressure = todayWeatherRequest.getMain().getPressure();
+        float windSpeed = todayWeatherRequest.getWind().getSpeed();
+        float windDegrees = todayWeatherRequest.getWind().getDeg();
 
         ContentValues cv = new ContentValues();
         cv.put(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID, locationId);
@@ -461,10 +465,57 @@ public class MainActivity extends AppCompatActivity
         setTodayWeather();
     }
 
-//    @Override
-//    public void sendToDbForecastWeather(WeatherRequest weatherRequest) {
-//
-//    }
+    @Override
+    public void sendToDbForecastWeather(ForecastWeatherRequest forecastWeatherRequest) {
+        int cnt = forecastWeatherRequest.getCnt();
+        long locationId = forecastWeatherRequest.getCity().getId();
+        ContentValues[] values = new ContentValues[cnt];
+
+        long date;
+        int weatherId;
+        String description;
+        float minTemp;
+        float maxTemp;
+        int humidity;
+        float pressure;
+        float speed;
+        float degrees;
+
+        for (int i = 0; i < cnt; i++) {
+            date = forecastWeatherRequest.getList()[i].getDt();
+            weatherId = forecastWeatherRequest.getList()[i].getWeather()[0].getId();
+            description = forecastWeatherRequest.getList()[i].getWeather()[0].getMain();
+            minTemp = forecastWeatherRequest.getList()[i].getTemp().getMin();
+            maxTemp = forecastWeatherRequest.getList()[i].getTemp().getMax();
+            humidity = forecastWeatherRequest.getList()[i].getHumidity();
+            pressure = forecastWeatherRequest.getList()[i].getPressure();
+            speed = forecastWeatherRequest.getList()[i].getSpeed();
+            degrees = forecastWeatherRequest.getList()[i].getDeg();
+
+            ContentValues cv = new ContentValues();
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID, locationId);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_DATE, date);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_WEATHER_ID, weatherId);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_SHORT_DESC, description);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_MIN_TEMP, minTemp);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_MAX_TEMP, maxTemp);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_HUMIDITY, humidity);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_PRESSURE, pressure);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_WIND_SPEED, speed);
+            cv.put(Contract.ForecastWeatherEntry.COLUMN_DEGREES, degrees);
+
+            values[i] = cv;
+        }
+
+        String[] stringArgs = new String[] {Long.toString(locationId)};
+        getContentResolver().delete(
+                Contract.ForecastWeatherEntry.CONTENT_URI,
+                Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID,
+                stringArgs);
+
+        int n = getContentResolver().bulkInsert(Contract.ForecastWeatherEntry.CONTENT_URI, values);
+        Log.d(TAG, CLASS + "sendToDbForecastWeather(); " + n);
+    }
 
 //    private void addNewFavoriteLocation(){
 //        Location saintPetersburg = new Location();

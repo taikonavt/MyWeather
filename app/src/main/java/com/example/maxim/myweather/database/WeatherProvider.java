@@ -41,7 +41,7 @@ public class WeatherProvider extends ContentProvider {
         matcher.addURI(authority, Contract.PATH_TODAY, CODE_TODAY_WEATHER);
         matcher.addURI(authority, Contract.PATH_FORECAST, CODE_FORECAST_WEATHER);
 //        matcher.addURI(authority, Contract.PATH_TODAY + "/#", CODE_TODAY_WEATHER_FOR_LOCATION);
-//        matcher.addURI(authority, Contract.PATH_FORECAST + "/#", CODE_FORECAST_WEATHER_FOR_LOCATION);
+        matcher.addURI(authority, Contract.PATH_FORECAST + "/#", CODE_FORECAST_WEATHER_FOR_LOCATION);
         return matcher;
     }
 
@@ -94,13 +94,14 @@ public class WeatherProvider extends ContentProvider {
                 );
                 break;
             }
-            case CODE_FORECAST_WEATHER:{
+            case CODE_FORECAST_WEATHER_FOR_LOCATION:{
+                String where = Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID;
                 String location = uri.getLastPathSegment();
                 String[] args = new String[] {location};
                 cursor = db.query(
                         Contract.ForecastWeatherEntry.TABLE_NAME,
                         columns,
-                        selection + " = ?",
+                        where + " = ?",
                         args,
                         null,
                         null,
