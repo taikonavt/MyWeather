@@ -14,13 +14,14 @@ import android.util.Log;
 import com.example.maxim.myweather.utils.DateUtils;
 
 public class WeatherProvider extends ContentProvider {
-    String TAG = "myLog";
+    String TAG = "myTag";
     String CLASS = WeatherProvider.class.getSimpleName() + " ";
 
     private DatabaseHelper dbHelper;
     private static final UriMatcher uriMatcher = buildUriMatcher();
 
     public static final int CODE_LOCATION = 100;
+    public static final int CODE_LOCATION_WITH_ID = 101;
     public static final int CODE_TODAY_WEATHER = 200;
     public static final int CODE_TODAY_WEATHER_FOR_LOCATION = 201;
     public static final int CODE_FORECAST_WEATHER = 300;
@@ -36,6 +37,7 @@ public class WeatherProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = Contract.CONTENT_AUTHORITY;
         matcher.addURI(authority, Contract.PATH_LOCATION, CODE_LOCATION);
+        matcher.addURI(authority, Contract.PATH_LOCATION + "/#", CODE_LOCATION_WITH_ID);
         matcher.addURI(authority, Contract.PATH_TODAY, CODE_TODAY_WEATHER);
         matcher.addURI(authority, Contract.PATH_FORECAST, CODE_FORECAST_WEATHER);
 //        matcher.addURI(authority, Contract.PATH_TODAY + "/#", CODE_TODAY_WEATHER_FOR_LOCATION);
@@ -49,25 +51,38 @@ public class WeatherProvider extends ContentProvider {
                         @Nullable String selection, @Nullable String[] selectionArgs,
                         @Nullable String sortOrder) {
         Cursor cursor;
-        Log.d(TAG, CLASS + dbHelper.toString());
         final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         switch (uriMatcher.match(uri)){
-            case CODE_LOCATION:{
+            case CODE_LOCATION_WITH_ID:{
+                String where = Contract.LocationEntry.COLUMN_LOCATION_ID;
+                String[] arg = new String[] {uri.getLastPathSegment()};
                 cursor = db.query(
                         Contract.LocationEntry.TABLE_NAME,
                         columns,
-                        selection + " = ?",
-                        selectionArgs,
+                        where + " = ?",
+                        arg,
                         null,
                         null,
                         sortOrder
                 );
                 break;
             }
+            case CODE_LOCATION:{
+                cursor = db.query(
+                        Contract.LocationEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+                Log.d(TAG, CLASS + "query() " + CODE_LOCATION + " " + cursor.getCount());
+                break;
+            }
             case CODE_TODAY_WEATHER:{
-//                String location = uri.getLastPathSegment();
-//                String[] args = new String[] {location};
+                Log.d(TAG, CLASS + "query() " + CODE_TODAY_WEATHER);
                 cursor = db.query(
                         Contract.TodayWeatherEntry.TABLE_NAME,
                         columns,

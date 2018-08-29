@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity
     private static final String LAST_LOCATION_KEY = "last_location_key";
     private static final int MOSCOW_ID = 524901;
     private ArrayList<Location> locationList;
-//    private Location currentLocation;
     private int displayingLocationIndex;
 
     private TextView tvTodayTemp;
@@ -112,6 +111,8 @@ public class MainActivity extends AppCompatActivity
                 selectionArgs,
                 null
         );
+
+        Log.d(TAG, CLASS + "setTodayWeather(); " + cursor.getCount());
 
         if (cursor.moveToFirst()){
             int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
@@ -322,15 +323,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setLocationById(Location location){
-        Uri uri = Contract.LocationEntry.CONTENT_URI;
-        String selection = Contract.LocationEntry.COLUMN_LOCATION_ID;
-        String[] selectionArgs = new String [] {Long.toString(location.getLocationId())};
+        String locationId = Long.toString(location.getLocationId());
+        Uri uri = Contract.LocationEntry.CONTENT_URI.buildUpon()
+                .appendPath(locationId)
+                .build();
 
         Cursor cursor = getContentResolver().query(
                 uri,
                 null,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 null
         );
 

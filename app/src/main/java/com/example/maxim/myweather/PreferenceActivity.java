@@ -1,10 +1,13 @@
 package com.example.maxim.myweather;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.AccessNetworkConstants;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.maxim.myweather.database.Contract;
+import com.example.maxim.myweather.database.DatabaseHelper;
 
 /**
  * Created by maxim on 05.08.18.
@@ -64,40 +68,11 @@ public class PreferenceActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, CLASS + "onClick();");
-                Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-                String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
-                String[] selectionArgs = new String[] {"524901"};
-                Cursor cursor = getContentResolver().query(
-                        uri,
-                        null,
-                        selection,
-                        selectionArgs,
-                        null
-                );
 
-                if (cursor.moveToFirst()){
-                    int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
-                    int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
-                    int descriptionIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC);
-                    int temperatureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE);
-                    int humidityIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_HUMIDITY);
-                    int pressureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_PRESSURE);
-                    int windSpeedIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WIND_SPEED);
-                    int degreesIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_DEGREES);
-
-                    do {
-                        Log.d(TAG, CLASS +
-                            Long.toString(cursor.getLong(locationIdIndex)) + " " +
-                              Integer.toString(cursor.getInt(weatherIdIndex)) +  " " +
-                              cursor.getString(descriptionIndex) + " " +
-                              Float.toString(cursor.getFloat(temperatureIndex)) + " " +
-                                Integer.toString(cursor.getInt(humidityIndex)) + " " +
-                                Integer.toString(cursor.getInt(pressureIndex)) + " " +
-                                Float.toString(cursor.getFloat(windSpeedIndex)) + " " +
-                                Float.toString(cursor.getFloat(degreesIndex))
-                        );
-                    } while (cursor.moveToNext());
-                    }
+//                addLocation();
+                showLocation();
+//                showTodayWeather();
+//                askDB();
                 }
         });
 
@@ -155,5 +130,134 @@ public class PreferenceActivity extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showTodayWeather(){
+        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
+        String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+        String[] selectionArgs = new String[] {"524901"};
+        Cursor cursor = getContentResolver().query(
+                uri,
+                null,
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()){
+            int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
+            int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
+            int descriptionIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC);
+            int temperatureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE);
+            int humidityIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_HUMIDITY);
+            int pressureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_PRESSURE);
+            int windSpeedIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WIND_SPEED);
+            int degreesIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_DEGREES);
+
+            do {
+                Log.d(TAG, CLASS +
+                        Long.toString(cursor.getLong(locationIdIndex)) + " " +
+                        Integer.toString(cursor.getInt(weatherIdIndex)) +  " " +
+                        cursor.getString(descriptionIndex) + " " +
+                        Float.toString(cursor.getFloat(temperatureIndex)) + " " +
+                        Integer.toString(cursor.getInt(humidityIndex)) + " " +
+                        Integer.toString(cursor.getInt(pressureIndex)) + " " +
+                        Float.toString(cursor.getFloat(windSpeedIndex)) + " " +
+                        Float.toString(cursor.getFloat(degreesIndex))
+                );
+            } while (cursor.moveToNext());
+        }
+    }
+
+    private void showLocation(){
+        Uri uri = Contract.LocationEntry.CONTENT_URI;
+        String selection = Contract.LocationEntry.COLUMN_CITY_NAME;
+        String[] selectionArgs = new String[] {"*"};
+
+        Cursor cursor = getContentResolver().query(
+                uri,
+                null,
+                selection,
+                null,
+                null
+        );
+
+        Log.d(TAG, CLASS + "showLocation(); " + cursor.getCount());
+
+        if (cursor.moveToFirst()){
+            int locatinIdIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
+            int cityIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
+            int countryIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COUNTRY_NAME);
+            int coordLatIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LAT);
+            int coordLonIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LONG);
+            int todayIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE);
+            int forecastIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
+
+            do {
+                Log.d(TAG, CLASS +
+                Long.toString(cursor.getLong(locatinIdIndex)) + " " +
+                        cursor.getString(cityIndex) +  " " +
+                        cursor.getString(countryIndex) + " " +
+                        Float.toString(cursor.getFloat(coordLatIndex)) + " " +
+                        Float.toString(cursor.getFloat(coordLonIndex)) + " " +
+                        Long.toString(cursor.getLong(todayIndex)) + " " +
+                        Long.toString(cursor.getLong(forecastIndex))
+                );
+            } while (cursor.moveToNext());
+        }
+    }
+
+    private void addLocation(){
+        Uri uri = Contract.LocationEntry.CONTENT_URI;
+        ContentValues cv = new ContentValues();
+
+        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, 1271881);
+        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, "Firozpur Jhirka");
+        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, "IN");
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, 27.799999);
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, 76.949997);
+        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, System.currentTimeMillis());
+        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, System.currentTimeMillis());
+
+        Uri u = getContentResolver().insert(uri, cv);
+        Log.d(TAG, CLASS + u.toString());
+    }
+
+    private void askDB(){
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query(
+                Contract.LocationEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        Log.d(TAG, CLASS + "showLocation(); " + cursor.getCount());
+
+        if (cursor.moveToFirst()){
+            int locatinIdIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
+            int cityIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
+            int countryIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COUNTRY_NAME);
+            int coordLatIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LAT);
+            int coordLonIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LONG);
+            int todayIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE);
+            int forecastIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
+
+            do {
+                Log.d(TAG, CLASS +
+                        Long.toString(cursor.getLong(locatinIdIndex)) + " " +
+                        cursor.getString(cityIndex) +  " " +
+                        cursor.getString(countryIndex) + " " +
+                        Float.toString(cursor.getFloat(coordLatIndex)) + " " +
+                        Float.toString(cursor.getFloat(coordLonIndex)) + " " +
+                        Long.toString(cursor.getLong(todayIndex)) + " " +
+                        Long.toString(cursor.getLong(forecastIndex))
+                );
+            } while (cursor.moveToNext());
+        }
     }
 }
