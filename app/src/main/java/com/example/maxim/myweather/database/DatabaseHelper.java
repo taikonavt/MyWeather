@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_FORECAST_TABLE =
                 "CREATE TABLE " + ForecastWeatherEntry.TABLE_NAME + " (" +
                         ForecastWeatherEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        ForecastWeatherEntry.COLUMN_LOCATION_ID + " INTEGER UNIQUE, " +
+                        ForecastWeatherEntry.COLUMN_LOCATION_ID + " INTEGER NOT NULL, " +
                         ForecastWeatherEntry.COLUMN_DATE + " INTEGER NOT NULL, " +
                         ForecastWeatherEntry.COLUMN_WEATHER_ID + " INTEGER NOT NULL, " +
                         ForecastWeatherEntry.COLUMN_SHORT_DESC + " TEXT NOT NULL, " +

@@ -5,7 +5,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -29,7 +34,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-                    Network.DbCallable{
+                    Network.DbCallable, LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String TAG = "myTag";
     public static final String CLASS = MainActivity.class.getSimpleName() + " ";
@@ -37,6 +42,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String LAST_LOCATION_KEY = "last_location_key";
     private static final int MOSCOW_ID = 524901;
+    private static final int ID_LOADER = 1111;
     private ArrayList<Location> locationList;
     private int displayingLocationIndex;
 
@@ -45,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     private TextView tvTodayWind;
     private TextView tvTodayHumidity;
     private NavigationView navigationView;
+    private ForecastListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +72,8 @@ public class MainActivity extends AppCompatActivity
         updateCurrentLocationFromGps();
 
         startService(new Intent(MainActivity.this, SyncIntentService.class));
+
+        getSupportLoaderManager().initLoader(ID_LOADER, null, this);
     }
 
     private void initGui() {
@@ -90,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        ForecastListAdapter adapter = new ForecastListAdapter(getFakeForecast());
+        adapter = new ForecastListAdapter();
         recyclerView.setAdapter(adapter);
     }
 
@@ -481,6 +490,8 @@ public class MainActivity extends AppCompatActivity
         float speed;
         float degrees;
 
+        Log.d(TAG, CLASS + "sendToDbForecastWeather(); " + cnt);
+
         for (int i = 0; i < cnt; i++) {
             date = forecastWeatherRequest.getList()[i].getDt();
             weatherId = forecastWeatherRequest.getList()[i].getWeather()[0].getId();
@@ -491,6 +502,10 @@ public class MainActivity extends AppCompatActivity
             pressure = forecastWeatherRequest.getList()[i].getPressure();
             speed = forecastWeatherRequest.getList()[i].getSpeed();
             degrees = forecastWeatherRequest.getList()[i].getDeg();
+
+            Log.d(TAG, CLASS + "sendToDbForecastWeather(); " +
+            date + " " + weatherId + " " + description + " " + minTemp + " " + maxTemp + " " +
+            humidity + " " + pressure + " " + speed + " " + degrees);
 
             ContentValues cv = new ContentValues();
             cv.put(Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID, locationId);
@@ -514,7 +529,40 @@ public class MainActivity extends AppCompatActivity
                 stringArgs);
 
         int n = getContentResolver().bulkInsert(Contract.ForecastWeatherEntry.CONTENT_URI, values);
-        Log.d(TAG, CLASS + "sendToDbForecastWeather(); " + n);
+        Log.d(TAG, CLASS + "sendToDbForecastWeather(); n = " + n + " cv = " + values.length);
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
+        switch (i){
+            case ID_LOADER:
+                Uri uri = Contract.ForecastWeatherEntry.CONTENT_URI
+                        .buildUpon()
+                        .appendPath(Long.toString(locationList.get(displayingLocationIndex).getLocationId()))
+                        .build();
+                String sortOrder= Contract.ForecastWeatherEntry.COLUMN_DATE + " ASC";
+
+                return new CursorLoader(this,
+                        uri,
+                        null,
+                        null,
+                        null,
+                        sortOrder);
+                default:
+                    throw new RuntimeException("Loader Not Implemented: " + i);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+        adapter.swapCursor(cursor);
+
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        adapter.swapCursor(null);
     }
 
 //    private void addNewFavoriteLocation(){

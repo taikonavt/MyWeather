@@ -69,11 +69,11 @@ public class PreferenceActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, CLASS + "onClick();");
 
-//                addLocation();
+                addLocation();
 //                showLocation();
 //                showTodayWeather();
 //                askDB();
-                showForecast();
+//                showForecast();
                 }
         });
 
@@ -212,11 +212,11 @@ public class PreferenceActivity extends AppCompatActivity {
         Uri uri = Contract.LocationEntry.CONTENT_URI;
         ContentValues cv = new ContentValues();
 
-        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, 1271881);
-        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, "Firozpur Jhirka");
-        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, "IN");
-        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, 27.799999);
-        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, 76.949997);
+        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, 703448);
+        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, "Kiev");
+        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, "UA");
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, 50.433334);
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, 30.516666);
         cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, System.currentTimeMillis());
         cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, System.currentTimeMillis());
 

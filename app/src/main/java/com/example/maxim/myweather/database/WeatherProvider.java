@@ -141,6 +141,7 @@ public class WeatherProvider extends ContentProvider {
                         if (id != -1) {
                             rowsInserted++;
                         }
+                        Log.d(TAG, CLASS + "bulkInsert() " + id);
                     }
                     db.setTransactionSuccessful();
                 } finally {
