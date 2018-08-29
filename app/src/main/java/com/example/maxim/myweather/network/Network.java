@@ -64,28 +64,28 @@ public class Network {
                 });
     }
 
-//    public void requestTodayWeather(long locationId){
-//        AppPreferences appPreferences = new AppPreferences(activity);
-//        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
-//        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
-//
-//        openWeather.loadTodayWeather(locationId, units, keyApi)
-//                .enqueue(new Callback<WeatherRequest>() {
-//                    @Override
-//                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
-//                        if (response.body() != null) {
-//                            MainActivity mainActivity = (MainActivity) activity;
-//                            mainActivity.sendToDbTodayWeather(response.body());
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
-//                        Toast.makeText(activity, activity.getString(R.string.network_error),
-//                                Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//    }
+    public void requestTodayWeather(long locationId){
+        AppPreferences appPreferences = new AppPreferences(activity);
+        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
+
+        openWeather.loadTodayWeather(locationId, units, keyApi)
+                .enqueue(new Callback<WeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                        if (response.body() != null) {
+                            MainActivity mainActivity = (MainActivity) activity;
+                            mainActivity.sendToDbTodayWeather(response.body());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                        Toast.makeText(activity, activity.getString(R.string.network_error),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
 
 //    public void requestTodayWeather(String cityName){
 //        AppPreferences appPreferences = new AppPreferences(activity);

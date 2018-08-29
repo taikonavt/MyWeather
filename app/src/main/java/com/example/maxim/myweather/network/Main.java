@@ -23,6 +23,12 @@ public class Main {
     @SerializedName("temp_max")
     @Expose
     private float temp_max;
+    @SerializedName("sea_level")
+    @Expose
+    private float sea_level;
+    @SerializedName("grnd_level")
+    @Expose
+    private float grnd_level;
 
     public float getTemp() {
         return temp;
@@ -62,5 +68,21 @@ public class Main {
 
     public void setTemp_max(float temp_max) {
         this.temp_max = temp_max;
+    }
+
+    public float getSea_level() {
+        return sea_level;
+    }
+
+    public void setSea_level(float sea_level) {
+        this.sea_level = sea_level;
+    }
+
+    public float getGrnd_level() {
+        return grnd_level;
+    }
+
+    public void setGrnd_level(float grnd_level) {
+        this.grnd_level = grnd_level;
     }
 }

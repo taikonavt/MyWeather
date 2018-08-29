@@ -183,6 +183,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             default: {
                 displayingLocationIndex = id; // здесь id от 1 и дальше
+                long locationId = locationList.get(displayingLocationIndex).getLocationId();
+                Log.d(TAG, CLASS + "onNavigationItemSelected() " + locationId);
+                Network.getInstance().requestTodayWeather(locationId);
             }
         }
 
@@ -353,26 +356,6 @@ public class MainActivity extends AppCompatActivity
             location.setForecastLastUpdate(cursor.getLong(forecastLastUpdateIndex));
         }
     }
-//
-//    private void updateLocationWeather(Location location) {
-//        float coordLat = location.getCoordLat();
-//        float coordLon = location.getCoordLon();
-//        if (coordLat != 0 && coordLon != 0){
-//
-//        } else if (location.getLocationId() != 0){
-//            Network.getInstance().requestTodayWeather(location.getLocationId());
-//        } else if (location.getCityName().length() != 0){
-//            Network.getInstance().requestTodayWeather(location.getCityName());
-//        }
-//    }
-
-    private void addFavoriteLocationsFromDB(ArrayList<Location> arrayList) {
-//        arrayList.add(1, "Saint Petersburg"); // index > 0 favourite
-//        arrayList.add(2, "Nizhny Novgorod");
-//        arrayList.add(3, "Moscow");
-
-
-    }
 
     private String[] getFakeForecast(){
         String[] strings = new String[10];
@@ -390,12 +373,6 @@ public class MainActivity extends AppCompatActivity
         AppPreferences preferences = new AppPreferences(this);
         preferences.savePreference(LAST_LOCATION_KEY,
                 locationList.get(displayingLocationIndex).getCityName());
-    }
-
-    public String getLastDisplayingLocation() {
-        AppPreferences preferences = new AppPreferences(this);
-        String string = preferences.getPreference(LAST_LOCATION_KEY, "");
-        return string;
     }
 
     @Override
