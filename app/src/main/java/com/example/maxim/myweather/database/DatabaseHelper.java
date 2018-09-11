@@ -41,8 +41,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         TodayWeatherEntry.COLUMN_WEATHER_ID + " INTEGER NOT NULL, " +
                         TodayWeatherEntry.COLUMN_SHORT_DESC + " TEXT NOT NULL, " +
                         TodayWeatherEntry.COLUMN_TEMPERATURE + " REAL NOT NULL, " +
-                        TodayWeatherEntry.COLUMN_HUMIDITY + " INTEGER NOT NULL, " +
-                        TodayWeatherEntry.COLUMN_PRESSURE + " INTEGER NOT NULL, " +
+                        TodayWeatherEntry.COLUMN_HUMIDITY + " REAL NOT NULL, " +
+                        TodayWeatherEntry.COLUMN_PRESSURE + " REAL NOT NULL, " +
                         TodayWeatherEntry.COLUMN_WIND_SPEED + " REAL NOT NULL, " +
                         TodayWeatherEntry.COLUMN_DEGREES + " REAL NOT NULL, " +
                         " FOREIGN KEY (" + TodayWeatherEntry.COLUMN_LOCATION_ID + ") " +

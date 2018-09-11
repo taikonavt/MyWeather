@@ -524,8 +524,8 @@ public class MainActivity extends AppCompatActivity
         int weatherId = todayWeatherRequest.getWeather()[0].getId();
         String shortDescription = todayWeatherRequest.getWeather()[0].getDescription();
         float temperature = todayWeatherRequest.getMain().getTemp();
-        int humidity = todayWeatherRequest.getMain().getHumidity();
-        int pressure = todayWeatherRequest.getMain().getPressure();
+        float humidity = todayWeatherRequest.getMain().getHumidity();
+        float pressure = todayWeatherRequest.getMain().getPressure();
         float windSpeed = todayWeatherRequest.getWind().getSpeed();
         float windDegrees = todayWeatherRequest.getWind().getDeg();
 

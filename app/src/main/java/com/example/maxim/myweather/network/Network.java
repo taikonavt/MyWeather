@@ -62,6 +62,7 @@ public class Network {
 
                     @Override
                     public void onFailure(Call<TodayWeatherRequest> call, Throwable t) {
+                        Log.d(TAG, CLASS + "requestTodayWeather(); onFailure();" + t);
                         Toast.makeText(activity, activity.getString(R.string.network_error),
                                 Toast.LENGTH_LONG).show();
                     }
@@ -83,7 +84,7 @@ public class Network {
 
                     @Override
                     public void onFailure(Call<ForecastWeatherRequest> call, Throwable t) {
-                        Log.d(TAG, CLASS + "requestForecastWeather(); onFailure();");
+                        Log.d(TAG, CLASS + "requestForecastWeather(); onFailure();" + t);
                         Toast.makeText(activity, activity.getString(R.string.network_error),
                                 Toast.LENGTH_LONG).show();
                     }
@@ -105,7 +106,7 @@ public class Network {
 
                     @Override
                     public void onFailure(Call<ForecastWeatherRequest> call, Throwable t) {
-                        Log.d(TAG, CLASS + "requestForecastWeather(); onFailure();");
+                        Log.d(TAG, CLASS + "requestForecastWeather(); onFailure(); " + t);
                         Toast.makeText(activity, activity.getString(R.string.network_error),
                                 Toast.LENGTH_LONG).show();
                     }
@@ -129,6 +130,7 @@ public class Network {
 
                     @Override
                     public void onFailure(Call<TodayWeatherRequest> call, Throwable t) {
+                        Log.d(TAG, CLASS + "requestTodayWeather(); onFailure(); " + t);
                         Toast.makeText(activity, activity.getString(R.string.network_error),
                                 Toast.LENGTH_LONG).show();
                     }
