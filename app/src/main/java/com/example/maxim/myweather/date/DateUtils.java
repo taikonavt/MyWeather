@@ -23,6 +23,4 @@ public class DateUtils {
 
         return day + " " + month + " " + dayOfWeek;
     }
-
-
 }

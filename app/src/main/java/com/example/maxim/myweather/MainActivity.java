@@ -39,6 +39,8 @@ import com.example.maxim.myweather.network.today.TodayWeatherRequest;
 
 import java.util.ArrayList;
 
+import okhttp3.internal.platform.Platform;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                     Network.DbCallable, LoaderManager.LoaderCallbacks<Cursor>{
@@ -339,50 +341,53 @@ public class MainActivity extends AppCompatActivity
         } else {
             requestLocationPermissions();
         }
-
-//        place.setCoordLat(55.75222f);
-//        place.setCoordLong(37.615555f);
-
-        Network.getInstance().requestTodayWeather(place.getCoordLat(), place.getCoordLon());
-        Network.getInstance().requestForecastWeather(place.getCoordLat(), place.getCoordLon());
     }
 
     private void requestLocation(final Place place) {
-        // Если пермиссии все таки нет - то просто выйдем, приложение не имеет смысла
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED)
             return;
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
 
-        // получим наиболее подходящий провайдер геолокации по критериям
-        // Но можно и самому назначать какой провайдер использовать.
-        // В основном это LocationManager.GPS_PROVIDER или LocationManager.NETWORK_PROVIDER
-        // но может быть и LocationManager.PASSIVE_PROVIDER, это когда координаты уже кто-то недавно получил.
         provider = locationManager.getBestProvider(criteria, true);
         if (provider != null) {
             // Будем получать геоположение через каждые 10 секунд или каждые 10 метров
-            locationManager.requestLocationUpdates(provider, 10000, 10, new LocationListener() {
+            int MIN_TIME = 1000 * 60 * 10;
+            int MIN_DISTANCE = 1000;
+            locationManager.requestSingleUpdate(provider, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    double lat = location.getLatitude();
+                    double lon = location.getLongitude();
+                    Log.d(TAG, CLASS + "onLocationChanged(); " + lat + " " + lon);
                     place.setCoordLat((float) location.getLatitude());
                     place.setCoordLong((float) location.getLongitude());
+                    Network.getInstance().requestTodayWeather(place.getCoordLat(), place.getCoordLon());
+                    Network.getInstance().requestForecastWeather(place.getCoordLat(), place.getCoordLon());
                 }
+
                 @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+
                 }
+
                 @Override
-                public void onProviderEnabled(String provider) {
+                public void onProviderEnabled(String s) {
+
                 }
+
                 @Override
-                public void onProviderDisabled(String provider) {
+                public void onProviderDisabled(String s) {
+
                 }
-            });
+            }, null);
         }
     }
 
-    // Запрос пермиссии для геолокации
     private void requestLocationPermissions() {
         if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
             // Запросим эти две пермиссии у пользователя
@@ -395,8 +400,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-    // Это результат запроса у пользователя пермиссии
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {   // Это та самая пермиссия, что мы запрашивали?
@@ -450,14 +453,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private String[] getFakeForecast(){
-        String[] strings = new String[10];
-        for (int i = 0; i < 10; i++) {
-            strings[i] = "123";
-        }
-        return strings;
-    }
-
     // последний гарантированно вызываемый метод перед закрытием
     @Override
     protected void onPause() {
@@ -491,32 +486,6 @@ public class MainActivity extends AppCompatActivity
 
         updateDrawersItem();
     }
-
-//    @Override
-//    public void sendToDbNewLocation(ForecastWeatherRequest weatherRequest) {
-//        long locationId = weatherRequest.getId();
-//        String cityName = weatherRequest.getName();
-//        String countryName = weatherRequest.getSys().getCountry();
-//        float coordLon = weatherRequest.getCoord().getLon();
-//        float coordLat = weatherRequest.getCoord().getLat();
-//        long todayLastUdpate = System.currentTimeMillis();
-//        long forecastLastUpdate = 0;
-//
-//        ContentValues cv = new ContentValues();
-//        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, locationId);
-//        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, cityName);
-//        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, countryName);
-//        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, coordLon);
-//        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, coordLat);
-//        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, todayLastUdpate);
-//        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, forecastLastUpdate);
-//
-//        Uri uri = Contract.LocationEntry.CONTENT_URI;
-//        getContentResolver().insert(uri, cv);
-//
-//        placeList = getFavoriteLocations();
-//        updateDrawersItem();
-//    }
 
     @Override
     public void sendToDbTodayWeather(TodayWeatherRequest todayWeatherRequest) {
@@ -603,7 +572,6 @@ public class MainActivity extends AppCompatActivity
 
             values[i] = cv;
         }
-
         String[] stringArgs = new String[] {Long.toString(locationId)};
         getContentResolver().delete(
                 Contract.ForecastWeatherEntry.CONTENT_URI,
@@ -639,17 +607,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
         adapter.swapCursor(cursor);
-
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         adapter.swapCursor(null);
     }
-
-//    private void addNewFavoriteLocation(){
-//        Place saintPetersburg = new Place();
-//        saintPetersburg.setCityName("Saint Petersburg");
-//        Network.getInstance().requestTodayWeather(saintPetersburg.getCityName());
-//    }
 }
