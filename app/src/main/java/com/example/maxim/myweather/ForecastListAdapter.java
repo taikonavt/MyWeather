@@ -1,9 +1,7 @@
 package com.example.maxim.myweather;
 
 import android.database.Cursor;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -12,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.maxim.myweather.database.Contract;
+import com.example.maxim.myweather.date.DateUtils;
+import com.example.maxim.myweather.date.MyDate;
 
 public class ForecastListAdapter extends RecyclerView.Adapter<ForecastListAdapter.ViewHolder>{
 
@@ -42,7 +42,11 @@ public class ForecastListAdapter extends RecyclerView.Adapter<ForecastListAdapte
         float maxTemp = cursor.getLong(maxIndex);
         float minTemp = cursor.getLong(minIndex);
 
-        viewHolder.day.setText(Long.toString(dateInMillis));
+        MyDate date = new MyDate(dateInMillis);
+
+        viewHolder.day.setText(date.getDayOfMonth());
+        viewHolder.month.setText(date.getMonth());
+        viewHolder.dayOfWeek.setText(date.getDayOfWeek());
         viewHolder.maxTemp.setText(Float.toString(maxTemp));
         viewHolder.minTemp.setText(Float.toString(minTemp));
     }
