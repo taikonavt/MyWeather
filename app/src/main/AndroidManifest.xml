@@ -26,6 +26,9 @@
         <activity
             android:name=".PreferenceActivity">
         </activity>
+        <activity
+            android:name=".SearchActivity">
+        </activity>
         <service
             android:name=".SyncIntentService"
             android:enabled="true"

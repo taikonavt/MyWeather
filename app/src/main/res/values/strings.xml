@@ -12,6 +12,7 @@
     <!-- menu/activity_main_drawer.xml -->
     <string name="title_current_place">Текущее местоположение</string>
     <string name="title_favourites">Избранное</string>
+    <string name="add_new_location">Добавить новое</string>
 
     <string name="action_settings">Settings</string>
     <string name="large_text">
@@ -132,4 +133,9 @@
     <string name="metrov_v_sec">м/с</string>
     <string name="degrees">&#176;</string>
 
+    <!-- SearchActivity.class -->
+
+    <!-- menu_search.xml -->
+    <string name="search_title">Search</string>
+    <string name="search_hint">Поиск местоположения</string>
 </resources>

@@ -39,8 +39,6 @@ import com.example.maxim.myweather.network.today.TodayWeatherRequest;
 
 import java.util.ArrayList;
 
-import okhttp3.internal.platform.Platform;
-
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                     Network.DbCallable, LoaderManager.LoaderCallbacks<Cursor>{
@@ -191,22 +189,27 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    final int NEW_LOCATION_REQUEST_CODE = 121;
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        final int addNewLocationBtnId = placeList.size();
 
         Log.d(TAG, "onNavigationItemSelected(): " + id );
 
-        switch (id){
-            case R.id.current_place:
-                displayingLocationIndex = 0;
-                break;
-            default: {
-                displayingLocationIndex = id; // здесь id от 1 и дальше
-            }
+        if (id == R.id.current_place){
+            displayingLocationIndex = 0;
+        } else if (id == addNewLocationBtnId){
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivityForResult(intent, NEW_LOCATION_REQUEST_CODE);
+            return true;
+        } else{
+            displayingLocationIndex = id; // здесь id от 1 и дальше
         }
+
         long locationId = placeList.get(displayingLocationIndex).getLocationId();
         Log.d(TAG, CLASS + "onNavigationItemSelected() " + locationId);
         Network.getInstance().requestTodayWeather(locationId);
@@ -219,6 +222,18 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == RESULT_OK) {
+            switch (requestCode) {
+                case NEW_LOCATION_REQUEST_CODE: {
+                    Log.d(TAG, MainActivity.class.getSimpleName() + " onActivityResult(); "
+                    + data.getStringExtra(SearchActivity.NAME_KEY));
+                }
+            }
+        }
     }
 
     private void updateDrawersItem() {
@@ -253,6 +268,12 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+        int addNewLocationBtnId = placeList.size();
+        menuFavourites
+                .add(GROUP_ID, addNewLocationBtnId,
+                        ITEM_ORDER + addNewLocationBtnId,
+                        R.string.add_new_location)
+                .setIcon(R.drawable.ic_add_black_24dp);
         navigationView.post(onNavChange);
     }
 
