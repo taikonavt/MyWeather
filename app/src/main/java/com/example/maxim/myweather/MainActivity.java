@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        updateDrawersItem();
+        updateDrawerItems();
 
         tvTodayTemp = (TextView) findViewById(R.id.tv_main_info_field_temperature);
         tvTodayHumidity = (TextView) findViewById(R.id.tv_main_info_field_humidity);
@@ -131,8 +131,6 @@ public class MainActivity extends AppCompatActivity
                 selectionArgs,
                 null
         );
-
-        Log.d(TAG, CLASS + "setTodayWeather(); " + cursor.getCount());
 
         if (cursor.moveToFirst()){
             int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
@@ -185,7 +183,6 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -198,8 +195,6 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         final int addNewLocationBtnId = placeList.size();
 
-        Log.d(TAG, "onNavigationItemSelected(): " + id );
-
         if (id == R.id.current_place){
             displayingLocationIndex = 0;
         } else if (id == addNewLocationBtnId){
@@ -209,41 +204,47 @@ public class MainActivity extends AppCompatActivity
         } else{
             displayingLocationIndex = id; // здесь id от 1 и дальше
         }
+        updateInfo();
+        return true;
+    }
 
+    private void updateInfo() {
         long locationId = placeList.get(displayingLocationIndex).getLocationId();
-        Log.d(TAG, CLASS + "onNavigationItemSelected() " + locationId);
         Network.getInstance().requestTodayWeather(locationId);
         Network.getInstance().requestForecastWeather(locationId);
         getSupportLoaderManager().restartLoader(ID_LOADER, null, this);
 
         navigationView.post(onNavChange);
         getSupportActionBar().setTitle(placeList.get(displayingLocationIndex).getCityName());
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case NEW_LOCATION_REQUEST_CODE: {
+                    Place place = (Place) data.getParcelableExtra(SearchActivity.PLACE_KEY);
                     Log.d(TAG, MainActivity.class.getSimpleName() + " onActivityResult(); "
-                    + data.getStringExtra(SearchActivity.NAME_KEY));
+                    + place.getCountryName());
+                    placeList.add(place);
+                    displayingLocationIndex = placeList.indexOf(place);
+                    updateDrawerItems();
+                    updateInfo();
+                    addFavoriteLocation(place);
                 }
             }
         }
     }
 
-    private void updateDrawersItem() {
+    private void updateDrawerItems() {
         int LOCATION_ID = 0;
         int FAVOURITES_ID = 1;
         int GROUP_ID = 1;
         int ITEM_ORDER = 100;
 
         Menu menu = navigationView.getMenu();
-
         MenuItem location = menu.getItem(LOCATION_ID);
         Menu menuLocation = location.getSubMenu();
         menuLocation.getItem(0).setTitle(placeList.get(0).getCityName());
@@ -252,7 +253,6 @@ public class MainActivity extends AppCompatActivity
         Menu menuFavourites = favourites.getSubMenu();
         menuFavourites.removeGroup(GROUP_ID);
         for (int i = 1; i < placeList.size(); i++) {
-//            final int ITEM_ID = i;
             final MenuItem menuItem = menuFavourites
                     .add(GROUP_ID, i, ITEM_ORDER + i, placeList.get(i).getCityName())
                     .setIcon(R.drawable.ic_place_black_24dp)
@@ -268,6 +268,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+
         int addNewLocationBtnId = placeList.size();
         menuFavourites
                 .add(GROUP_ID, addNewLocationBtnId,
@@ -349,6 +350,21 @@ public class MainActivity extends AppCompatActivity
             } while (cursor.moveToNext());
         }
         cursor.close();
+    }
+
+    private void addFavoriteLocation(Place place){
+        Uri uri = Contract.LocationEntry.CONTENT_URI;
+
+        ContentValues cv = new ContentValues();
+        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, place.getCityName());
+        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, place.getCountryName());
+        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, place.getLocationId());
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, place.getCoordLat());
+        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, place.getCoordLon());
+        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, place.getTodayLastUpdate());
+        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, place.getForecastLastUpdate());
+
+        getContentResolver().insert(uri, cv);
     }
 
     private void updateCurrentLocationFromGps(){
@@ -503,9 +519,7 @@ public class MainActivity extends AppCompatActivity
         place.setTodayLastUpdate(todayLastUdpate);
         place.setForecastLastUpdate(forecastLastUpdate);
 
-        Log.d(TAG, CLASS + "updateCurrentLocation(); " + cityName);
-
-        updateDrawersItem();
+        updateDrawerItems();
     }
 
     @Override
@@ -540,7 +554,6 @@ public class MainActivity extends AppCompatActivity
         }
         else {
             Uri u = getContentResolver().insert(uri, cv);
-            Log.d(TAG, CLASS + u.toString());
         }
         query.close();
         setTodayWeather();
@@ -562,8 +575,6 @@ public class MainActivity extends AppCompatActivity
         float speed;
         float degrees;
 
-        Log.d(TAG, CLASS + "sendToDbForecastWeather(); " + cnt);
-
         for (int i = 0; i < cnt; i++) {
             date = forecastWeatherRequest.getList()[i].getDt();
             weatherId = forecastWeatherRequest.getList()[i].getWeather()[0].getId();
@@ -574,10 +585,6 @@ public class MainActivity extends AppCompatActivity
             pressure = forecastWeatherRequest.getList()[i].getPressure();
             speed = forecastWeatherRequest.getList()[i].getSpeed();
             degrees = forecastWeatherRequest.getList()[i].getDeg();
-
-            Log.d(TAG, CLASS + "sendToDbForecastWeather(); " +
-            date + " " + weatherId + " " + description + " " + minTemp + " " + maxTemp + " " +
-            humidity + " " + pressure + " " + speed + " " + degrees);
 
             ContentValues cv = new ContentValues();
             cv.put(Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID, locationId);
@@ -600,7 +607,6 @@ public class MainActivity extends AppCompatActivity
                 stringArgs);
 
         int n = getContentResolver().bulkInsert(Contract.ForecastWeatherEntry.CONTENT_URI, values);
-        Log.d(TAG, CLASS + "sendToDbForecastWeather(); n = " + n + " cv = " + values.length);
     }
 
     @NonNull

@@ -1,8 +1,9 @@
 package com.example.maxim.myweather;
 
-import com.example.maxim.myweather.database.WeatherProvider;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Place {
+public class Place implements Parcelable {
     private long id;
     private String cityName;
     private String countryName;
@@ -20,6 +21,36 @@ public class Place {
         todayLastUpdate = 0;
         forecastLastUpdate = 0;
         }
+
+    protected Place(Parcel in) {
+        id = in.readLong();
+        cityName = in.readString();
+        countryName = in.readString();
+        if (in.readByte() == 0) {
+            coordLat = null;
+        } else {
+            coordLat = in.readFloat();
+        }
+        if (in.readByte() == 0) {
+            coordLong = null;
+        } else {
+            coordLong = in.readFloat();
+        }
+        todayLastUpdate = in.readLong();
+        forecastLastUpdate = in.readLong();
+    }
+
+    public static final Creator<Place> CREATOR = new Creator<Place>() {
+        @Override
+        public Place createFromParcel(Parcel in) {
+            return new Place(in);
+        }
+
+        @Override
+        public Place[] newArray(int size) {
+            return new Place[size];
+        }
+    };
 
     public long getForecastLastUpdate() {
         return forecastLastUpdate;
@@ -75,5 +106,21 @@ public class Place {
 
     public void setTodayLastUpdate(long todayLastUpdate) {
         this.todayLastUpdate = todayLastUpdate;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeLong(id);
+        parcel.writeString(cityName);
+        parcel.writeString(countryName);
+        parcel.writeFloat(coordLat);
+        parcel.writeFloat(coordLong);
+        parcel.writeLong(todayLastUpdate);
+        parcel.writeLong(forecastLastUpdate);
     }
 }
