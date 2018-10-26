@@ -71,12 +71,11 @@ public class SearchActivity extends AppCompatActivity
     }
 
     private void doMySearch(String string){
-        Log.d(TAG, SearchActivity.class.getSimpleName() + " doMySearch();");
         recyclerView.setVisibility(View.INVISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         Place[] result = getFakeData();
         try {
-            sleep(1000);
+            sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

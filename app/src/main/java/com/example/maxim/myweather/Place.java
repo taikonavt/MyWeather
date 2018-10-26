@@ -7,8 +7,8 @@ public class Place implements Parcelable {
     private long id;
     private String cityName;
     private String countryName;
-    private Float coordLat;
-    private Float coordLong;
+    private float coordLat;
+    private float coordLong;
     private long todayLastUpdate;
     private long forecastLastUpdate;
 
@@ -26,16 +26,8 @@ public class Place implements Parcelable {
         id = in.readLong();
         cityName = in.readString();
         countryName = in.readString();
-        if (in.readByte() == 0) {
-            coordLat = null;
-        } else {
-            coordLat = in.readFloat();
-        }
-        if (in.readByte() == 0) {
-            coordLong = null;
-        } else {
-            coordLong = in.readFloat();
-        }
+        coordLat = in.readFloat();
+        coordLong = in.readFloat();
         todayLastUpdate = in.readLong();
         forecastLastUpdate = in.readLong();
     }

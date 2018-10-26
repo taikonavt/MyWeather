@@ -190,6 +190,8 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
 
         // Handle navigation view item clicks here.
         int id = item.getItemId();
@@ -216,8 +218,6 @@ public class MainActivity extends AppCompatActivity
 
         navigationView.post(onNavChange);
         getSupportActionBar().setTitle(placeList.get(displayingLocationIndex).getCityName());
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
     }
 
     @Override
@@ -226,13 +226,11 @@ public class MainActivity extends AppCompatActivity
             switch (requestCode) {
                 case NEW_LOCATION_REQUEST_CODE: {
                     Place place = (Place) data.getParcelableExtra(SearchActivity.PLACE_KEY);
-                    Log.d(TAG, MainActivity.class.getSimpleName() + " onActivityResult(); "
-                    + place.getCountryName());
-                    placeList.add(place);
-                    displayingLocationIndex = placeList.indexOf(place);
+                    addFavoriteLocation(place);
+                    getFavoriteLocations(placeList);
+                    displayingLocationIndex = placeList.size() - 1;
                     updateDrawerItems();
                     updateInfo();
-                    addFavoriteLocation(place);
                 }
             }
         }
@@ -244,7 +242,7 @@ public class MainActivity extends AppCompatActivity
         int GROUP_ID = 1;
         int ITEM_ORDER = 100;
 
-        Menu menu = navigationView.getMenu();
+        final Menu menu = navigationView.getMenu();
         MenuItem location = menu.getItem(LOCATION_ID);
         Menu menuLocation = location.getSubMenu();
         menuLocation.getItem(0).setTitle(placeList.get(0).getCityName());
@@ -265,6 +263,14 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(View view) {
                     // TODO: 20.07.18 Realize deleting
                     Log.d(TAG, "clicked: " + menuItem.getItemId());
+                    int id = menuItem.getItemId();
+                    deleteFavoriteLocation(placeList.get(id));
+                    if (displayingLocationIndex == id)
+                        displayingLocationIndex = 0;
+                    else if (displayingLocationIndex > id)
+                        displayingLocationIndex--;
+                    getFavoriteLocations(placeList);
+                    updateDrawerItems();
                 }
             });
         }
@@ -316,6 +322,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getFavoriteLocations(ArrayList<Place> placeList){
+        while (placeList.size() > 1){
+            placeList.remove(1);
+        }
 
         Uri uri = Contract.LocationEntry.CONTENT_URI;
 
@@ -365,6 +374,12 @@ public class MainActivity extends AppCompatActivity
         cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, place.getForecastLastUpdate());
 
         getContentResolver().insert(uri, cv);
+    }
+
+    private void deleteFavoriteLocation(Place place){
+        Uri uri = Contract.LocationEntry.CONTENT_URI;
+        String[] args = new String[]{String.valueOf(place.getLocationId())};
+        getContentResolver().delete(uri, Contract.LocationEntry.COLUMN_LOCATION_ID, args);
     }
 
     private void updateCurrentLocationFromGps(){
