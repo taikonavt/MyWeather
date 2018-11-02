@@ -1,4 +1,4 @@
-package com.example.maxim.myweather;
+package com.example.maxim.myweather.view;
 
 import android.Manifest;
 import android.content.ContentValues;
@@ -32,6 +32,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.maxim.myweather.AppPreferences;
+import com.example.maxim.myweather.ForecastListAdapter;
+import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.PreferenceActivity;
+import com.example.maxim.myweather.R;
+import com.example.maxim.myweather.SearchActivity;
+import com.example.maxim.myweather.SyncIntentService;
+import com.example.maxim.myweather.presenter.MainPresenter;
+import com.example.maxim.myweather.presenter.MyPresenter;
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.network.Network;
 import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
@@ -41,11 +50,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-                    Network.DbCallable, LoaderManager.LoaderCallbacks<Cursor>{
+                    Network.DbCallable, LoaderManager.LoaderCallbacks<Cursor>,
+        MyActivity{
+
+    private static MyPresenter controller;
 
     public static final String TAG = "myTag";
     public static final String CLASS = MainActivity.class.getSimpleName() + " ";
-
 
     private static final String LAST_LOCATION_KEY = "last_location_key";
     private static final int PERMISSION_REQUEST_CODE = 10;
@@ -68,6 +79,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        MainPresenter presenter = new MainPresenter();
+        presenter.attachView(this);
 
         Network.initNetwork(this);
 
@@ -654,5 +668,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         adapter.swapCursor(null);
+    }
+
+    public static void attachController(MyPresenter contr) {
+        controller = contr;
+    }
+
+    @Override
+    public void attachPresenter(MyPresenter presenter) {
+
     }
 }

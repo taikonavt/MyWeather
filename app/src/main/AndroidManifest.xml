@@ -14,14 +14,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".view.StartActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".PreferenceActivity">
@@ -29,12 +34,11 @@
         <activity
             android:name=".SearchActivity">
         </activity>
+
         <service
             android:name=".SyncIntentService"
             android:enabled="true"
-            android:exported="true"
-            >
-        </service>
+            android:exported="true" />
         <provider
             android:authorities="com.example.maxim.myweather"
             android:name=".database.WeatherProvider"

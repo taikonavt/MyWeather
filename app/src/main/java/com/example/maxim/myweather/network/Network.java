@@ -5,7 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.maxim.myweather.AppPreferences;
-import com.example.maxim.myweather.MainActivity;
+import com.example.maxim.myweather.view.MainActivity;
 import com.example.maxim.myweather.R;
 import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
 import com.example.maxim.myweather.network.today.TodayWeatherRequest;

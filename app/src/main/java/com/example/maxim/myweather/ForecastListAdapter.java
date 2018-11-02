@@ -18,7 +18,7 @@ public class ForecastListAdapter extends RecyclerView.Adapter<ForecastListAdapte
     private Cursor cursor;
 
 
-    ForecastListAdapter(){
+    public ForecastListAdapter(){
     }
 
     @NonNull
@@ -57,7 +57,7 @@ public class ForecastListAdapter extends RecyclerView.Adapter<ForecastListAdapte
         return cursor.getCount();
     }
 
-    void swapCursor(Cursor newCursor){
+    public void swapCursor(Cursor newCursor){
         cursor = newCursor;
         notifyDataSetChanged();
     }
