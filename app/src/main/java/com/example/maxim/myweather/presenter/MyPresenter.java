@@ -1,5 +1,7 @@
 package com.example.maxim.myweather.presenter;
 
+import android.content.Context;
+
 import com.example.maxim.myweather.view.MyActivity;
 
 public interface MyPresenter {
@@ -11,4 +13,6 @@ public interface MyPresenter {
     void detachView();
 
     void destroy();
+
+    Context getAppContext();
 }

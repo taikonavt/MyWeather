@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.maxim.myweather.R;
+import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.presenter.MainPresenter;
 import com.example.maxim.myweather.presenter.MyPresenter;
 import com.example.maxim.myweather.presenter.StartPresenter;
@@ -20,17 +21,12 @@ public class StartActivity extends AppCompatActivity
 
         presenter = new StartPresenter();
         presenter.attachView(this);
-        presenter.startApp();
+        presenter.viewIsReady();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         presenter.destroy();
-    }
-
-    @Override
-    public void attachPresenter(MyPresenter controller) {
-
     }
 }

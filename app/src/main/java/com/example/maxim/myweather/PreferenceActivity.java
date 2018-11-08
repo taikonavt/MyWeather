@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.AccessNetworkConstants;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +20,7 @@ import android.widget.Toast;
 
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.database.DatabaseHelper;
+import com.example.maxim.myweather.model.AppPreferences;
 
 /**
  * Created by maxim on 05.08.18.

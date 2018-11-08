@@ -9,7 +9,7 @@ import com.example.maxim.myweather.database.Contract.*;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "weather.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
     static final String TAG = "myTag";
     static final String CLASS = DatabaseHelper.class.getSimpleName() + " ";
 
@@ -31,7 +31,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         LocationEntry.COLUMN_FORECAST_LAST_UPDATE + " INTEGER NOT NULL, " +
                         "UNIQUE (" + LocationEntry.COLUMN_LOCATION_ID + ") ON CONFLICT REPLACE " +
                         ");";
-        Log.d(TAG, CLASS + SQL_CREATE_LOCATION_TABLE);
         db.execSQL(SQL_CREATE_LOCATION_TABLE);
 
         final String SQL_CREATE_TODAY_WEATHER =
@@ -49,7 +48,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         " REFERENCES " + LocationEntry.TABLE_NAME +
                         " (" + LocationEntry.COLUMN_LOCATION_ID + ") " +
                         ");";
-        Log.d(TAG, CLASS + SQL_CREATE_TODAY_WEATHER);
         db.execSQL(SQL_CREATE_TODAY_WEATHER);
 
         final String SQL_CREATE_FORECAST_TABLE =
@@ -69,7 +67,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         " REFERENCES " + LocationEntry.TABLE_NAME +
                         " (" + LocationEntry.COLUMN_LOCATION_ID + ") " +
                         ");";
-        Log.d(TAG, CLASS + SQL_CREATE_FORECAST_TABLE);
         db.execSQL(SQL_CREATE_FORECAST_TABLE);
     }
 

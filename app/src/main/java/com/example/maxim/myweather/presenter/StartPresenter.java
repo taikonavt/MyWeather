@@ -1,9 +1,12 @@
 package com.example.maxim.myweather.presenter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.maxim.myweather.model.AppPreferences;
+import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.view.MainActivity;
 import com.example.maxim.myweather.view.MyActivity;
 import com.example.maxim.myweather.view.StartActivity;
@@ -12,6 +15,11 @@ import java.util.concurrent.TimeUnit;
 
 public class StartPresenter implements MyPresenter{
     private StartActivity activity;
+    private MyModel model;
+
+    public StartPresenter(){
+        this.model = new MyModel(this);
+    }
 
     @Override
     public void attachView(MyActivity activity) {
@@ -20,7 +28,8 @@ public class StartPresenter implements MyPresenter{
 
     @Override
     public void viewIsReady() {
-
+        MyTask myTask = new MyTask();
+        myTask.execute();
     }
 
     @Override
@@ -33,16 +42,14 @@ public class StartPresenter implements MyPresenter{
 
     }
 
-    public void startApp(){
-        MyTask myTask = new MyTask();
-        myTask.execute();
-    }
-
     private void startMainActivity(){
         Intent intent = new Intent(activity, MainActivity.class);
         activity.startActivity(intent);
-        MainActivity.attachController(this);
         activity.finish();
+    }
+
+    public Context getAppContext(){
+        return activity.getApplicationContext();
     }
 
 
