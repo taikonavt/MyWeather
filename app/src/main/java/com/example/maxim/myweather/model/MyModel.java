@@ -1,20 +1,33 @@
 package com.example.maxim.myweather.model;
 
+import com.example.maxim.myweather.Place;
 import com.example.maxim.myweather.presenter.MyPresenter;
-import com.example.maxim.myweather.view.MyActivity;
 
-public class MyModel {
+public class MyModel implements CurrentPlaceDefiner.OnLocationChangedListener {
     private Network network;
     private AppPreferences preferences;
-    private MyActivity activity;
     private MyPresenter presenter;
 
 
     public MyModel(MyPresenter presenter){
         this.presenter = presenter;
         network = new Network(presenter.getAppContext());
+
     }
 
+    public void startApp(){
+        CurrentPlaceDefiner definer = new CurrentPlaceDefiner(this);
+        definer.updateCurrentLocation();
+    }
+
+    public MyPresenter getPresenter(){
+        return presenter;
+    }
+
+    @Override
+    public void onLocationChanged(Place place) {
+
+    }
 
 
 //    private ArrayList<Place> getFavoriteLocations(){

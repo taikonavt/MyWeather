@@ -1,5 +1,8 @@
 package com.example.maxim.myweather.presenter;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.example.maxim.myweather.Place;
@@ -74,6 +77,29 @@ public class MainPresenter implements MyPresenter {
 
     // above checked methods
 
+//        private void requestLocationPermissions() {
+//            if (!ActivityCompat.shouldShowRequestPermissionRationale(context, Manifest.permission.CALL_PHONE)) {
+//                // Запросим эти две пермиссии у пользователя
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{
+//                                Manifest.permission.ACCESS_COARSE_LOCATION,
+//                                Manifest.permission.ACCESS_FINE_LOCATION
+//                        },
+//                        PERMISSION_REQUEST_CODE);
+//            }
+//        }
+//
+//        @Override
+//        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//            if (requestCode == PERMISSION_REQUEST_CODE) {   // Это та самая пермиссия, что мы запрашивали?
+//                if (grantResults.length == 2 &&
+//                        (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+//                    // Все препоны пройдены и пермиссия дана
+//                    requestLocation(placeList.get(0));
+//                }
+//            }
+//        }
+
 //    private void setTodayWeather() {
 //        getSupportActionBar().setTitle(placeList.get(displayingPlaceIndex).getCityName());
 //
@@ -137,86 +163,7 @@ public class MainPresenter implements MyPresenter {
 //        getContentResolver().delete(uri, Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, args);
 //    }
 //
-//    private void updateCurrentLocationFromGps(){
-//        Place place = new Place();
 //
-//        if (ActivityCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-//                || ActivityCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-//            requestLocation(place);
-//        } else {
-//            requestLocationPermissions();
-//        }
-//    }
-//
-//    private void requestLocation(final Place place) {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED)
-//            return;
-//        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-//        Criteria criteria = new Criteria();
-//        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-//
-//        provider = locationManager.getBestProvider(criteria, true);
-//        if (provider != null) {
-//            // Будем получать геоположение через каждые 10 секунд или каждые 10 метров
-//            int MIN_TIME = 1000 * 60 * 10;
-//            int MIN_DISTANCE = 1000;
-//            locationManager.requestSingleUpdate(provider, new LocationListener() {
-//                @Override
-//                public void onLocationChanged(Location location) {
-//                    double lat = location.getLatitude();
-//                    double lon = location.getLongitude();
-//                    Log.d(TAG, CLASS + "onLocationChanged(); " + lat + " " + lon);
-//                    place.setCoordLat((float) location.getLatitude());
-//                    place.setCoordLong((float) location.getLongitude());
-//                    Network.getInstance().requestTodayWeather(place.getCoordLat(), place.getCoordLon());
-//                    Network.getInstance().requestForecastWeather(place.getCoordLat(), place.getCoordLon());
-//                }
-//
-//                @Override
-//                public void onStatusChanged(String s, int i, Bundle bundle) {
-//
-//                }
-//
-//                @Override
-//                public void onProviderEnabled(String s) {
-//
-//                }
-//
-//                @Override
-//                public void onProviderDisabled(String s) {
-//
-//                }
-//            }, null);
-//        }
-//    }
-//
-//    private void requestLocationPermissions() {
-//        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE)) {
-//            // Запросим эти две пермиссии у пользователя
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{
-//                            Manifest.permission.ACCESS_COARSE_LOCATION,
-//                            Manifest.permission.ACCESS_FINE_LOCATION
-//                    },
-//                    PERMISSION_REQUEST_CODE);
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        if (requestCode == PERMISSION_REQUEST_CODE) {   // Это та самая пермиссия, что мы запрашивали?
-//            if (grantResults.length == 2 &&
-//                    (grantResults[0] == PackageManager.PERMISSION_GRANTED || grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-//                // Все препоны пройдены и пермиссия дана
-//                requestLocation(placeList.get(0));
-//            }
-//        }
-//    }
 //
 //
 //

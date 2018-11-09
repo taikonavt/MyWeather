@@ -15,4 +15,6 @@ public interface MyPresenter {
     void destroy();
 
     Context getAppContext();
+
+    boolean requestLocationPermissions();
 }

@@ -28,8 +28,7 @@ public class StartPresenter implements MyPresenter{
 
     @Override
     public void viewIsReady() {
-        MyTask myTask = new MyTask();
-        myTask.execute();
+        model.startApp();
     }
 
     @Override
@@ -52,18 +51,10 @@ public class StartPresenter implements MyPresenter{
         return activity.getApplicationContext();
     }
 
-
-    class MyTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                TimeUnit.SECONDS.sleep(3);
-                startMainActivity();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
+    @Override
+    public boolean requestLocationPermissions() {
+        return false;
     }
+
+
 }
