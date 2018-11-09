@@ -171,8 +171,8 @@ public class PreferenceActivity extends AppCompatActivity {
     }
 
     private void showLocation(){
-        Uri uri = Contract.LocationEntry.CONTENT_URI;
-        String selection = Contract.LocationEntry.COLUMN_CITY_NAME;
+        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
+        String selection = Contract.FavouritePlaceEntry.COLUMN_CITY_NAME;
         String[] selectionArgs = new String[] {"*"};
 
         Cursor cursor = getContentResolver().query(
@@ -186,13 +186,13 @@ public class PreferenceActivity extends AppCompatActivity {
         Log.d(TAG, CLASS + "showLocation(); " + cursor.getCount());
 
         if (cursor.moveToFirst()){
-            int locatinIdIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
-            int cityIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
-            int countryIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COUNTRY_NAME);
-            int coordLatIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LAT);
-            int coordLonIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LONG);
-            int todayIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE);
-            int forecastIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
+            int locatinIdIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID);
+            int cityIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME);
+            int countryIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME);
+            int coordLatIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT);
+            int coordLonIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG);
+            int todayIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE);
+            int forecastIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_FORECAST_LAST_UPDATE);
 
             do {
                 Log.d(TAG, CLASS +
@@ -209,16 +209,16 @@ public class PreferenceActivity extends AppCompatActivity {
     }
 
     private void addLocation(){
-        Uri uri = Contract.LocationEntry.CONTENT_URI;
+        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
         ContentValues cv = new ContentValues();
 
-        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, 1271881);
-        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, "Firozpur Jhirka");
-        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, "IN");
-        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, 76.949997);
-        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, 76.949997);
-        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, System.currentTimeMillis());
-        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, System.currentTimeMillis());
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, 1271881);
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME, "Firozpur Jhirka");
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME, "IN");
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT, 76.949997);
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG, 76.949997);
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE, System.currentTimeMillis());
+        cv.put(Contract.FavouritePlaceEntry.COLUMN_FORECAST_LAST_UPDATE, System.currentTimeMillis());
 
         Uri u = getContentResolver().insert(uri, cv);
         Log.d(TAG, CLASS + u.toString());
@@ -228,7 +228,7 @@ public class PreferenceActivity extends AppCompatActivity {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query(
-                Contract.LocationEntry.TABLE_NAME,
+                Contract.FavouritePlaceEntry.TABLE_NAME,
                 null,
                 null,
                 null,
@@ -240,13 +240,13 @@ public class PreferenceActivity extends AppCompatActivity {
         Log.d(TAG, CLASS + "showLocation(); " + cursor.getCount());
 
         if (cursor.moveToFirst()){
-            int locatinIdIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
-            int cityIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
-            int countryIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COUNTRY_NAME);
-            int coordLatIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LAT);
-            int coordLonIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LONG);
-            int todayIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE);
-            int forecastIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
+            int locatinIdIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID);
+            int cityIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME);
+            int countryIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME);
+            int coordLatIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT);
+            int coordLonIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG);
+            int todayIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE);
+            int forecastIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_FORECAST_LAST_UPDATE);
 
             do {
                 Log.d(TAG, CLASS +

@@ -80,7 +80,7 @@ public class MainPresenter implements MyPresenter {
 //        Cursor cursor;
 //
 //        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-//        String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+//        String selection = Contract.TodayWeatherEntry.COLUMN_PLACE_ID;
 //        String[] selectionArgs = new String[]{Long.toString(
 //                placeList.get(displayingPlaceIndex).getLocationId()
 //        )};
@@ -94,7 +94,7 @@ public class MainPresenter implements MyPresenter {
 //        );
 //
 //        if (cursor.moveToFirst()){
-//            int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
+//            int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_PLACE_ID);
 //            int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
 //            int descriptionIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC);
 //            int temperatureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE);
@@ -117,24 +117,24 @@ public class MainPresenter implements MyPresenter {
 //
 //
 //    private void addFavoriteLocation(Place place){
-//        Uri uri = Contract.LocationEntry.CONTENT_URI;
+//        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
 //
 //        ContentValues cv = new ContentValues();
-//        cv.put(Contract.LocationEntry.COLUMN_CITY_NAME, place.getCityName());
-//        cv.put(Contract.LocationEntry.COLUMN_COUNTRY_NAME, place.getCountryName());
-//        cv.put(Contract.LocationEntry.COLUMN_LOCATION_ID, place.getLocationId());
-//        cv.put(Contract.LocationEntry.COLUMN_COORD_LAT, place.getCoordLat());
-//        cv.put(Contract.LocationEntry.COLUMN_COORD_LONG, place.getCoordLon());
-//        cv.put(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE, place.getTodayLastUpdate());
-//        cv.put(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE, place.getForecastLastUpdate());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME, place.getCityName());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME, place.getCountryName());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, place.getLocationId());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT, place.getCoordLat());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG, place.getCoordLon());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE, place.getTodayLastUpdate());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_FORECAST_LAST_UPDATE, place.getForecastLastUpdate());
 //
 //        getContentResolver().insert(uri, cv);
 //    }
 //
 //    private void deleteFavoriteLocation(Place place){
-//        Uri uri = Contract.LocationEntry.CONTENT_URI;
+//        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
 //        String[] args = new String[]{String.valueOf(place.getLocationId())};
-//        getContentResolver().delete(uri, Contract.LocationEntry.COLUMN_LOCATION_ID, args);
+//        getContentResolver().delete(uri, Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, args);
 //    }
 //
 //    private void updateCurrentLocationFromGps(){
@@ -222,7 +222,7 @@ public class MainPresenter implements MyPresenter {
 //
 //    private void setLocationById(Place place){
 //        String locationId = Long.toString(place.getLocationId());
-//        Uri uri = Contract.LocationEntry.CONTENT_URI.buildUpon()
+//        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI.buildUpon()
 //                .appendPath(locationId)
 //                .build();
 //
@@ -234,13 +234,13 @@ public class MainPresenter implements MyPresenter {
 //                null
 //        );
 //
-//        int locationIdIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_LOCATION_ID);
-//        int cityNameIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_CITY_NAME);
-//        int countryNameIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COUNTRY_NAME);
-//        int coordLatIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LAT);
-//        int coordLonIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_COORD_LONG);
-//        int todayLastUpdateIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_TODAY_LAST_UPDATE);
-//        int forecastLastUpdateIndex = cursor.getColumnIndex(Contract.LocationEntry.COLUMN_FORECAST_LAST_UPDATE);
+//        int locationIdIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID);
+//        int cityNameIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME);
+//        int countryNameIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME);
+//        int coordLatIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT);
+//        int coordLonIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG);
+//        int todayLastUpdateIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE);
+//        int forecastLastUpdateIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_FORECAST_LAST_UPDATE);
 //
 //        if (cursor.moveToFirst()){
 //            place.setCityName(cursor.getString(cityNameIndex));
@@ -286,7 +286,7 @@ public class MainPresenter implements MyPresenter {
 //        float windDegrees = todayWeatherRequest.getWind().getDeg();
 //
 //        ContentValues cv = new ContentValues();
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID, locationId);
+//        cv.put(Contract.TodayWeatherEntry.COLUMN_PLACE_ID, locationId);
 //        cv.put(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID, weatherId);
 //        cv.put(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC, shortDescription);
 //        cv.put(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE, temperature);
@@ -296,7 +296,7 @@ public class MainPresenter implements MyPresenter {
 //        cv.put(Contract.TodayWeatherEntry.COLUMN_DEGREES, windDegrees);
 //
 //        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-//        String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+//        String selection = Contract.TodayWeatherEntry.COLUMN_PLACE_ID;
 //        String[] selectionArgs = new String[]{Long.toString(locationId)};
 //
 //        Cursor query = getContentResolver().query(uri, null, selection, selectionArgs, null);
@@ -339,7 +339,7 @@ public class MainPresenter implements MyPresenter {
 //            degrees = forecastWeatherRequest.getList()[i].getDeg();
 //
 //            ContentValues cv = new ContentValues();
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID, locationId);
+//            cv.put(Contract.ForecastWeatherEntry.COLUMN_PLACE_ID, locationId);
 //            cv.put(Contract.ForecastWeatherEntry.COLUMN_DATE, date);
 //            cv.put(Contract.ForecastWeatherEntry.COLUMN_WEATHER_ID, weatherId);
 //            cv.put(Contract.ForecastWeatherEntry.COLUMN_SHORT_DESC, description);
@@ -355,7 +355,7 @@ public class MainPresenter implements MyPresenter {
 //        String[] stringArgs = new String[] {Long.toString(locationId)};
 //        getContentResolver().delete(
 //                Contract.ForecastWeatherEntry.CONTENT_URI,
-//                Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID,
+//                Contract.ForecastWeatherEntry.COLUMN_PLACE_ID,
 //                stringArgs);
 //
 //        int n = getContentResolver().bulkInsert(Contract.ForecastWeatherEntry.CONTENT_URI, values);
