@@ -44,7 +44,7 @@ public class Contract {
                 .appendPath(PATH_TODAY)
                 .build();
         public static final String TABLE_NAME = "today_weather";
-        public static final String COLUMN_LOCATION_ID = "location_id";
+        public static final String COLUMN_PLACE_ID = "place_id";
         public static final String COLUMN_WEATHER_ID = "weather_id";
         public static final String COLUMN_SHORT_DESC = "short_description";
         public static final String COLUMN_TEMPERATURE = "temperature";
@@ -59,7 +59,7 @@ public class Contract {
                 .appendPath(PATH_FORECAST)
                 .build();
         public static final String TABLE_NAME = "forecast_weather";
-        public static final String COLUMN_LOCATION_ID = "location_id";
+        public static final String COLUMN_PLACE_ID = "place_id";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_WEATHER_ID = "weather_id";
         public static final String COLUMN_SHORT_DESC = "short_description";

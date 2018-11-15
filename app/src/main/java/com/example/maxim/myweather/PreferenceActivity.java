@@ -135,7 +135,7 @@ public class PreferenceActivity extends AppCompatActivity {
 
     private void showTodayWeather(){
         Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-        String selection = Contract.TodayWeatherEntry.COLUMN_LOCATION_ID;
+        String selection = Contract.TodayWeatherEntry.COLUMN_PLACE_ID;
         String[] selectionArgs = new String[] {"524901"};
         Cursor cursor = getContentResolver().query(
                 uri,
@@ -146,7 +146,7 @@ public class PreferenceActivity extends AppCompatActivity {
         );
 
         if (cursor.moveToFirst()){
-            int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_LOCATION_ID);
+            int locationIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_PLACE_ID);
             int weatherIdIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID);
             int descriptionIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC);
             int temperatureIndex = cursor.getColumnIndex(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE);
@@ -275,7 +275,7 @@ public class PreferenceActivity extends AppCompatActivity {
                 null,
                 null);
 
-        int locationIdIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_LOCATION_ID);
+        int locationIdIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_PLACE_ID);
         int dateIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_DATE);
         int weatherIdIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_WEATHER_ID);
         int descriptionIndex = cursor.getColumnIndex(Contract.ForecastWeatherEntry.COLUMN_SHORT_DESC);

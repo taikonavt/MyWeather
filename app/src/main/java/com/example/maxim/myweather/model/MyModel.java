@@ -1,18 +1,22 @@
 package com.example.maxim.myweather.model;
 
 import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
+import com.example.maxim.myweather.network.today.TodayWeatherRequest;
 import com.example.maxim.myweather.presenter.MyPresenter;
 
-public class MyModel implements CurrentPlaceDefiner.OnLocationChangedListener {
+public class MyModel implements
+        CurrentPlaceDefiner.OnLocationChangedListener,
+        Network.OnWeatherDataReceiveListener {
     private Network network;
-    private AppPreferences preferences;
     private MyPresenter presenter;
+    private DbMediator dbMediator;
 
 
     public MyModel(MyPresenter presenter){
         this.presenter = presenter;
-        network = new Network(presenter.getAppContext());
-
+        network = new Network(this);
+        dbMediator = new DbMediator(this);
     }
 
     public void startApp(){
@@ -20,13 +24,40 @@ public class MyModel implements CurrentPlaceDefiner.OnLocationChangedListener {
         definer.updateCurrentLocation();
     }
 
-    public MyPresenter getPresenter(){
+    MyPresenter getPresenter(){
         return presenter;
     }
 
+//    Network getNetwork(){
+//        return network;
+//    }
+
     @Override
     public void onLocationChanged(Place place) {
+        if (!dbMediator.checkCurrentPlaceIsFresh(place)){
+            network.requestTodayWeather(place.getCoordLat(), place.getCoordLon());
+            network.requestForecastWeather(place.getCoordLat(), place.getCoordLon());
+        }
+    }
 
+    @Override
+    public void onTodayWeatherDataReceive(TodayWeatherRequest todayWeatherRequest) {
+        dbMediator.updateTodayWeather(todayWeatherRequest);
+    }
+
+    @Override
+    public void onCurrentPlaceDataReceive(TodayWeatherRequest todayWeatherRequest) {
+        dbMediator.updateCurrentPlace(todayWeatherRequest);
+    }
+
+    @Override
+    public void onForecastWeatherDataReceive(ForecastWeatherRequest forecastWeatherRequest) {
+        dbMediator.updateForecastWeather(forecastWeatherRequest);
+    }
+
+    @Override
+    public void onRequestFailure() {
+        presenter.showToast("Server connection was failed");
     }
 
 

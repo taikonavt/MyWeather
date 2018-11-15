@@ -221,92 +221,9 @@ public class MainPresenter implements MyPresenter {
 //        updateDrawerItems();
 //    }
 //
-//    @Override
-//    public void sendToDbTodayWeather(TodayWeatherRequest todayWeatherRequest) {
-//        long locationId = todayWeatherRequest.getId();
-//        int weatherId = todayWeatherRequest.getWeather()[0].getId();
-//        String shortDescription = todayWeatherRequest.getWeather()[0].getDescription();
-//        float temperature = todayWeatherRequest.getMain().getTemp();
-//        float humidity = todayWeatherRequest.getMain().getHumidity();
-//        float pressure = todayWeatherRequest.getMain().getPressure();
-//        float windSpeed = todayWeatherRequest.getWind().getSpeed();
-//        float windDegrees = todayWeatherRequest.getWind().getDeg();
 //
-//        ContentValues cv = new ContentValues();
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_PLACE_ID, locationId);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_WEATHER_ID, weatherId);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_SHORT_DESC, shortDescription);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_TEMPERATURE, temperature);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_HUMIDITY, humidity);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_PRESSURE, pressure);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_WIND_SPEED, windSpeed);
-//        cv.put(Contract.TodayWeatherEntry.COLUMN_DEGREES, windDegrees);
 //
-//        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
-//        String selection = Contract.TodayWeatherEntry.COLUMN_PLACE_ID;
-//        String[] selectionArgs = new String[]{Long.toString(locationId)};
 //
-//        Cursor query = getContentResolver().query(uri, null, selection, selectionArgs, null);
-//        if (query.moveToFirst()){
-//            getContentResolver().delete(uri, selection, selectionArgs);
-//            getContentResolver().insert(uri, cv);
-//        }
-//        else {
-//            Uri u = getContentResolver().insert(uri, cv);
-//        }
-//        query.close();
-//        setTodayWeather();
-//    }
-//
-//    @Override
-//    public void sendToDbForecastWeather(ForecastWeatherRequest forecastWeatherRequest) {
-//        int cnt = forecastWeatherRequest.getCnt();
-//        long locationId = forecastWeatherRequest.getCity().getId();
-//        ContentValues[] values = new ContentValues[cnt];
-//
-//        long date;
-//        int weatherId;
-//        String description;
-//        float minTemp;
-//        float maxTemp;
-//        int humidity;
-//        float pressure;
-//        float speed;
-//        float degrees;
-//
-//        for (int i = 0; i < cnt; i++) {
-//            date = forecastWeatherRequest.getList()[i].getDt();
-//            weatherId = forecastWeatherRequest.getList()[i].getWeather()[0].getId();
-//            description = forecastWeatherRequest.getList()[i].getWeather()[0].getMain();
-//            minTemp = forecastWeatherRequest.getList()[i].getTemp().getMin();
-//            maxTemp = forecastWeatherRequest.getList()[i].getTemp().getMax();
-//            humidity = forecastWeatherRequest.getList()[i].getHumidity();
-//            pressure = forecastWeatherRequest.getList()[i].getPressure();
-//            speed = forecastWeatherRequest.getList()[i].getSpeed();
-//            degrees = forecastWeatherRequest.getList()[i].getDeg();
-//
-//            ContentValues cv = new ContentValues();
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_PLACE_ID, locationId);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_DATE, date);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_WEATHER_ID, weatherId);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_SHORT_DESC, description);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_MIN_TEMP, minTemp);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_MAX_TEMP, maxTemp);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_HUMIDITY, humidity);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_PRESSURE, pressure);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_WIND_SPEED, speed);
-//            cv.put(Contract.ForecastWeatherEntry.COLUMN_DEGREES, degrees);
-//
-//            values[i] = cv;
-//        }
-//        String[] stringArgs = new String[] {Long.toString(locationId)};
-//        getContentResolver().delete(
-//                Contract.ForecastWeatherEntry.CONTENT_URI,
-//                Contract.ForecastWeatherEntry.COLUMN_PLACE_ID,
-//                stringArgs);
-//
-//        int n = getContentResolver().bulkInsert(Contract.ForecastWeatherEntry.CONTENT_URI, values);
-//    }
 //
 //    @NonNull
 //    @Override

@@ -29,6 +29,8 @@ public class StartPresenter implements MyPresenter{
     @Override
     public void viewIsReady() {
         model.startApp();
+        startMainActivity();
+        activity.finish();
     }
 
     @Override
@@ -44,7 +46,6 @@ public class StartPresenter implements MyPresenter{
     private void startMainActivity(){
         Intent intent = new Intent(activity, MainActivity.class);
         activity.startActivity(intent);
-        activity.finish();
     }
 
     public Context getAppContext(){
@@ -54,6 +55,11 @@ public class StartPresenter implements MyPresenter{
     @Override
     public boolean requestLocationPermissions() {
         return false;
+    }
+
+    @Override
+    public void showToast(String message) {
+
     }
 
 
