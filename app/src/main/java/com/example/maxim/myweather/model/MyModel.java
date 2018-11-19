@@ -2,7 +2,7 @@ package com.example.maxim.myweather.model;
 
 import android.net.Uri;
 
-import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.common.Place;
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
 import com.example.maxim.myweather.network.today.TodayWeatherRequest;
@@ -21,12 +21,15 @@ public class MyModel implements
         this.presenter = presenter;
         network = new Network(this);
         dbMediator = new DbMediator(this);
-        loaderManager = new MyLoaderManager(this);
     }
 
     public void startApp(){
         CurrentPlaceDefiner definer = new CurrentPlaceDefiner(this);
         definer.updateCurrentLocation();
+    }
+
+    public void initLoader() {
+        loaderManager = new MyLoaderManager(this);
     }
 
     MyPresenter getPresenter(){
@@ -75,6 +78,8 @@ public class MyModel implements
                 selection,
                 args);
     }
+
+
 
 
 //    private ArrayList<Place> getFavoriteLocations(){

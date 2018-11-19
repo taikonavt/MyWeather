@@ -2,11 +2,10 @@ package com.example.maxim.myweather.model;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.common.Place;
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
 import com.example.maxim.myweather.network.today.TodayWeatherRequest;

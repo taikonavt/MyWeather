@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.common.Place;
 import com.example.maxim.myweather.PreferenceActivity;
-import com.example.maxim.myweather.TodayWeather;
+import com.example.maxim.myweather.common.TodayWeather;
 import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.view.MainActivity;
 import com.example.maxim.myweather.view.MyActivity;
@@ -34,8 +34,7 @@ public class MainPresenter implements
 
 
     public MainPresenter() {
-        this.model = new MyModel(this);
-        displayingPlaceIndex = 0;
+
 
 //        placeList = model.getFavoriteLocations();
 //
@@ -51,6 +50,9 @@ public class MainPresenter implements
     @Override
     public void attachView(MyActivity activity) {
         this.activity = (MainActivity) activity;
+        this.model = new MyModel(this);
+        model.initLoader();
+        displayingPlaceIndex = 0;
     }
 
     @Override

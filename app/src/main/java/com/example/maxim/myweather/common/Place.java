@@ -1,4 +1,4 @@
-package com.example.maxim.myweather;
+package com.example.maxim.myweather.common;
 
 import android.os.Parcel;
 import android.os.Parcelable;

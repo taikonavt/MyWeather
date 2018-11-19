@@ -10,8 +10,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.maxim.myweather.Place;
-import com.example.maxim.myweather.TodayWeather;
+import com.example.maxim.myweather.common.Place;
+import com.example.maxim.myweather.common.TodayWeather;
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.presenter.MainPresenter;
 

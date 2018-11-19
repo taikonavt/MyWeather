@@ -1,4 +1,4 @@
-package com.example.maxim.myweather;
+package com.example.maxim.myweather.common;
 
 public class TodayWeather {
     private long placeId = 0;

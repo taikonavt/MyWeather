@@ -107,14 +107,14 @@ public class PreferenceActivity extends AppCompatActivity {
         String metric = getResources().getString(R.string.settings_measurement_units_metric);
         String imperial = getResources().getString(R.string.settings_measurement_units_imperial);
 
-        if (stringFromView.equals(metric)) {
-            tv.setText(imperial);
-            preferences.savePreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_IMP);
-        }
-        else {
-            tv.setText(metric);
-            preferences.savePreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
-        }
+//        if (stringFromView.equals(metric)) {
+//            tv.setText(imperial);
+//            preferences.savePreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_IMP);
+//        }
+//        else {
+//            tv.setText(metric);
+//            preferences.savePreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
+//        }
     }
 
     private void startLogIn() {

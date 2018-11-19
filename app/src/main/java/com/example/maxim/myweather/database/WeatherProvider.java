@@ -54,6 +54,9 @@ public class WeatherProvider extends ContentProvider {
         Cursor cursor = null;
         final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        Log.d(TAG, "WeatherProvider query() " + uri + " " + columns + " " + selection +
+        selectionArgs + " " + sortOrder);
+
         switch (uriMatcher.match(uri)){
             case CODE_CURRENT_PLACE:{
                 cursor = db.query(
@@ -98,7 +101,7 @@ public class WeatherProvider extends ContentProvider {
                 cursor = db.query(
                         Contract.TodayWeatherEntry.TABLE_NAME,
                         columns,
-                        selection,
+                        selection + " = ?",
                         selectionArgs,
                         null,
                         null,
@@ -106,11 +109,11 @@ public class WeatherProvider extends ContentProvider {
                 );
                 break;
             }
-            case CODE_FORECAST_WEATHER_FOR_PLACE:{
+            case CODE_FORECAST_WEATHER:{
                 cursor = db.query(
                         Contract.ForecastWeatherEntry.TABLE_NAME,
                         columns,
-                        selection,
+                        selection + " = ?",
                         selectionArgs,
                         null,
                         null,

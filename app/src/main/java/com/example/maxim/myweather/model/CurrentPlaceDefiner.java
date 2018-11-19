@@ -10,7 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 
-import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.common.Place;
 import com.example.maxim.myweather.presenter.MyPresenter;
 
 import static android.content.Context.LOCATION_SERVICE;

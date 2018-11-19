@@ -18,12 +18,13 @@ public class StartPresenter implements MyPresenter{
     private MyModel model;
 
     public StartPresenter(){
-        this.model = new MyModel(this);
+
     }
 
     @Override
     public void attachView(MyActivity activity) {
         this.activity = (StartActivity) activity;
+        this.model = new MyModel(this);
     }
 
     @Override
