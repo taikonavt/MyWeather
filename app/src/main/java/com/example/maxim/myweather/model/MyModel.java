@@ -1,6 +1,9 @@
 package com.example.maxim.myweather.model;
 
+import android.net.Uri;
+
 import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
 import com.example.maxim.myweather.network.today.TodayWeatherRequest;
 import com.example.maxim.myweather.presenter.MyPresenter;
@@ -61,6 +64,16 @@ public class MyModel implements
 
     public void download(long locationId) {
         loaderManager.reloadTodayWeather(locationId);
+    }
+
+    public void deleteFavouritePlace(long placeId){
+        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
+        String selection = Contract.FavouritePlaceEntry.COLUMN_PLACE_ID;
+        String[] args = new String [] {Long.toString(placeId)};
+        presenter.getAppContext().getContentResolver().delete(
+                uri,
+                selection,
+                args);
     }
 
 

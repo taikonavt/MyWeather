@@ -220,14 +220,14 @@ public class WeatherProvider extends ContentProvider {
                 );
                 break;
             }
-//            case CODE_FAVOURITE_PLACE:{
-//                numRowsDeleted = db.delete(
-//                        Contract.FavouritePlaceEntry.TABLE_NAME,
-//                        selection + " = ?",
-//                        selectionArgs
-//                );
-//                break;
-//            }
+            case CODE_FAVOURITE_PLACE:{
+                numRowsDeleted = db.delete(
+                        Contract.FavouritePlaceEntry.TABLE_NAME,
+                        selection + " = ?",
+                        selectionArgs
+                );
+                break;
+            }
             case CODE_TODAY_WEATHER:{
                 numRowsDeleted = db.delete(
                         Contract.TodayWeatherEntry.TABLE_NAME,

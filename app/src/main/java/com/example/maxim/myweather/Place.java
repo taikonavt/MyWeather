@@ -52,7 +52,7 @@ public class Place implements Parcelable {
         this.forecastLastUpdate = forecastLastUpdate;
     }
 
-    public long getLocationId() {
+    public long getPlaceId() {
         return id;
     }
 

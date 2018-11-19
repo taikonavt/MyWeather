@@ -10,7 +10,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.maxim.myweather.ForecastWeather;
 import com.example.maxim.myweather.Place;
 import com.example.maxim.myweather.TodayWeather;
 import com.example.maxim.myweather.database.Contract;
@@ -116,7 +115,7 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
                     place.setForecastLastUpdate(cursor.getLong(forecastLastUpdateIndex));
                 }
                 if (isFirstLoading) {
-                    displayingPlaceId = place.getLocationId();
+                    displayingPlaceId = place.getPlaceId();
                     isFirstLoading = false;
                 }
                 presenter.updateCurrentPlace(place);

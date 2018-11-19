@@ -212,8 +212,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-
     // последний гарантированно вызываемый метод перед закрытием
     @Override
     protected void onPause() {
@@ -248,13 +246,6 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View view) {
             presenter.deleteFavouritePlace(id);
-//            deleteFavoriteLocation(placeList.get(id));
-//            if (displayingLocationIndex == id)
-//                displayingLocationIndex = 0;
-//            else if (displayingLocationIndex > id)
-//                displayingLocationIndex--;
-//            getFavoriteLocations(placeList);
-//            updateDrawerItems();
         }
     }
 }

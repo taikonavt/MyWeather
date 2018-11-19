@@ -1,25 +1,13 @@
 package com.example.maxim.myweather.presenter;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.maxim.myweather.ForecastWeather;
 import com.example.maxim.myweather.Place;
 import com.example.maxim.myweather.PreferenceActivity;
 import com.example.maxim.myweather.TodayWeather;
-import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.view.MainActivity;
 import com.example.maxim.myweather.view.MyActivity;
@@ -133,13 +121,13 @@ public class MainPresenter implements
     public void onNavigationCurrentPlaceSelected() {
         displayingPlaceIndex = 0;
         activity.setNavigationCurrentPlaceChecked();
-        model.download(currentPlace.getLocationId());
+        model.download(currentPlace.getPlaceId());
     }
 
     public void onNavigationItemSelected(int id) {
         displayingPlaceIndex = id + 1;
         activity.setNavigationPlaceChecked(id);
-        model.download(favouritePlaces[id].getLocationId());
+        model.download(favouritePlaces[id].getPlaceId());
         //        // Handle navigation view item clicks here.
 //        int id = item.getItemId();
 //        final int addNewLocationBtnId = placeList.size();
@@ -157,7 +145,8 @@ public class MainPresenter implements
     }
 
     public void deleteFavouritePlace(int id) {
-
+        long placeId = favouritePlaces[id].getPlaceId();
+        model.deleteFavouritePlace(placeId);
     }
 }
 
@@ -206,7 +195,7 @@ public class MainPresenter implements
 //        Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
 //        String selection = Contract.TodayWeatherEntry.COLUMN_PLACE_ID;
 //        String[] selectionArgs = new String[]{Long.toString(
-//                placeList.get(displayingPlaceIndex).getLocationId()
+//                placeList.get(displayingPlaceIndex).getPlaceId()
 //        )};
 //
 //        cursor = getContentResolver().query(
@@ -239,7 +228,7 @@ public class MainPresenter implements
 //    }
 //
 ////    private void updateInfo() {
-////        long locationId = placeList.get(displayingLocationIndex).getLocationId();
+////        long locationId = placeList.get(displayingLocationIndex).getPlaceId();
 ////        Network.getInstance().requestTodayWeather(locationId);
 ////        Network.getInstance().requestForecastWeather(locationId);
 ////        getSupportLoaderManager().restartLoader(ID_LOADER, null, this);
@@ -270,7 +259,7 @@ public class MainPresenter implements
 //        ContentValues cv = new ContentValues();
 //        cv.put(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME, place.getCityName());
 //        cv.put(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME, place.getCountryName());
-//        cv.put(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, place.getLocationId());
+//        cv.put(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, place.getPlaceId());
 //        cv.put(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT, place.getCoordLat());
 //        cv.put(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG, place.getCoordLon());
 //        cv.put(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE, place.getTodayLastUpdate());
@@ -281,7 +270,7 @@ public class MainPresenter implements
 //
 //    private void deleteFavoriteLocation(Place place){
 //        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
-//        String[] args = new String[]{String.valueOf(place.getLocationId())};
+//        String[] args = new String[]{String.valueOf(place.getPlaceId())};
 //        getContentResolver().delete(uri, Contract.FavouritePlaceEntry.COLUMN_PLACE_ID, args);
 //    }
 //
@@ -290,7 +279,7 @@ public class MainPresenter implements
 //
 //
 //    private void setLocationById(Place place){
-//        String locationId = Long.toString(place.getLocationId());
+//        String locationId = Long.toString(place.getPlaceId());
 //        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI.buildUpon()
 //                .appendPath(locationId)
 //                .build();
@@ -354,7 +343,7 @@ public class MainPresenter implements
 //            case ID_LOADER:
 //                Uri uri = Contract.ForecastWeatherEntry.CONTENT_URI
 //                        .buildUpon()
-//                        .appendPath(Long.toString(placeList.get(displayingPlaceIndex).getLocationId()))
+//                        .appendPath(Long.toString(placeList.get(displayingPlaceIndex).getPlaceId()))
 //                        .build();
 //                String sortOrder= Contract.ForecastWeatherEntry.COLUMN_DATE + " ASC";
 //
