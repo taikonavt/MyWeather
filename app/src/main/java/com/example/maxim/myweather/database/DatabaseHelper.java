@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_CURRENT_PLACE_TABLE =
-                "CREATE TABLE " + FavouritePlaceEntry.TABLE_NAME + " (" +
+                "CREATE TABLE " + CurrentPlaceEntry.TABLE_NAME + " (" +
                         CurrentPlaceEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         CurrentPlaceEntry.COLUMN_PLACE_ID + " INTEGER NOT NULL, " +
                         CurrentPlaceEntry.COLUMN_CITY_NAME + " TEXT NOT NULL, " +

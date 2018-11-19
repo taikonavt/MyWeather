@@ -1,6 +1,5 @@
 package com.example.maxim.myweather.view;
 
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,34 +11,33 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.maxim.myweather.ForecastListAdapter;
 import com.example.maxim.myweather.R;
-import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.presenter.MainPresenter;
-import com.example.maxim.myweather.presenter.MyPresenter;
 
 public class MainActivity extends AppCompatActivity
         implements
         NavigationView.OnNavigationItemSelectedListener,
-//                    Network.DbCallable, LoaderManager.LoaderCallbacks<Cursor>,
         MyActivity{
 
     public static final String TAG = "myTag";
     public static final String CLASS = MainActivity.class.getSimpleName() + " ";
 
-
-// above checked constants
+    private MainPresenter presenter;
 
     private TextView tvTodayTemp;
     private TextView tvTodayWeatherType;
     private TextView tvTodayWind;
     private TextView tvTodayHumidity;
     private NavigationView navigationView;
-    private ForecastListAdapter adapter;
-    private LocationManager locationManager;
-    String provider;
+
+
+    private ForecastListAdapter forecastListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +47,8 @@ public class MainActivity extends AppCompatActivity
 
         initView();
 
-        MainPresenter presenter = new MainPresenter();
+        presenter = new MainPresenter();
         presenter.attachView(this);
-
         presenter.viewIsReady();
     }
 
@@ -66,8 +63,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        navigationView.setNavigationItemSelectedListener(this);
-//        updateDrawerItems();
+        navigationView.setNavigationItemSelectedListener(this);
 
         tvTodayTemp = (TextView) findViewById(R.id.tv_main_info_field_temperature);
         tvTodayHumidity = (TextView) findViewById(R.id.tv_main_info_field_humidity);
@@ -78,8 +74,8 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new ForecastListAdapter();
-        recyclerView.setAdapter(adapter);
+        forecastListAdapter = new ForecastListAdapter();
+        recyclerView.setAdapter(forecastListAdapter);
     }
 
     @Override
@@ -108,163 +104,157 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-//            Intent intent = new Intent(this, PreferenceActivity.class);
-//            startActivity(intent);
-//            return true;
+            presenter.onSettingsSelected();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    final int NEW_LOCATION_REQUEST_CODE = 121;
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
-//
-//        // Handle navigation view item clicks here.
-//        int id = item.getItemId();
-//        final int addNewLocationBtnId = placeList.size();
-//
-//        if (id == R.id.current_place){
-//            displayingLocationIndex = 0;
-//        } else if (id == addNewLocationBtnId){
-//            Intent intent = new Intent(this, SearchActivity.class);
-//            startActivityForResult(intent, NEW_LOCATION_REQUEST_CODE);
-//            return true;
-//        } else{
-//            displayingLocationIndex = id; // здесь id от 1 и дальше
-//        }
-//        updateInfo();
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
+        int id = item.getItemId();
+        if (id == R.id.current_place){
+            presenter.onNavigationCurrentPlaceSelected();
+        } else {
+            presenter.onNavigationItemSelected(id);
+        }
         return true;
+    }
+
+    public void setTitle(String string){
+        getSupportActionBar().setTitle(string);
+    }
+
+    public void setNavigationCurrentPlaceChecked(){
+        navigationView.post(new Runnable() {
+            @Override
+            public void run() {
+                clearCheckedPosition();
+                MenuItem menuItem = navigationView.getMenu()
+                        .getItem(0)
+                        .getSubMenu()
+                        .getItem(0);
+                menuItem.setChecked(true);
+            }
+        });
+    }
+
+    public void setNavigationPlaceChecked(final int position){
+        navigationView.post(new Runnable() {
+            @Override
+            public void run() {
+                clearCheckedPosition();
+                MenuItem menuItem = navigationView.getMenu()
+                        .getItem(1)
+                        .getSubMenu()
+                        .getItem(position -1);
+                menuItem.setChecked(true);
+            }
+        });
+    }
+
+    public void updateNavigatorCurrentPlace(String cityName){
+        final int CURRENT_PLACE_MENU_ID = 0;
+        final int CURRENT_PLACE_ITEM_ID = 0;
+
+        final Menu menu = navigationView.getMenu();
+        MenuItem location = menu.getItem(CURRENT_PLACE_MENU_ID);
+        Menu menuLocation = location.getSubMenu();
+        menuLocation.getItem(CURRENT_PLACE_ITEM_ID).setTitle(cityName);
+    }
+
+    public void updateNavigatorFavouritePlaces(String[] cityNames){
+        final int FAVOURITES_PLACES_ID = 1;
+        final int GROUP_ID = 1;
+        final int ITEM_ORDER = 100;
+
+        final Menu menu = navigationView.getMenu();
+        MenuItem favourites = menu.getItem(FAVOURITES_PLACES_ID);
+        Menu menuFavourites = favourites.getSubMenu();
+        menuFavourites.removeGroup(GROUP_ID);
+
+        for (int i = 0; i < cityNames.length; i++) {
+            final int ITEM_ID = i;
+            final MenuItem menuItem = menuFavourites
+                    .add(GROUP_ID, ITEM_ID, ITEM_ORDER + i, cityNames[i])
+                    .setIcon(R.drawable.ic_place_black_24dp)
+                    .setActionView(R.layout.action_view_delete);
+
+            View actionView = menuItem.getActionView();
+            ImageView imageView = (ImageView) actionView.findViewById(R.id.iv_delete);
+            OnDeleteFavouritePlaceItemListener listener = new OnDeleteFavouritePlaceItemListener(ITEM_ID);
+            imageView.setOnClickListener(listener);
+        }
+
+        int addNewLocationBtnId = cityNames.length;
+        menuFavourites
+                .add(GROUP_ID, addNewLocationBtnId,
+                        ITEM_ORDER + addNewLocationBtnId,
+                        R.string.add_new_location)
+                .setIcon(R.drawable.ic_add_black_24dp);
+    }
+
+    private void clearCheckedPosition(){
+        navigationView.getMenu()
+                .getItem(0)
+                .getSubMenu()
+                .getItem(0)
+                .setChecked(false);
+
+        SubMenu subMenu = navigationView.getMenu().getItem(1).getSubMenu();
+        for (int i = 0; i < subMenu.size(); i++) {
+            subMenu.getItem(i)
+                   .setChecked(false);
+        }
     }
 
 
 
-//    private void updateInfo() {
-//        long locationId = placeList.get(displayingLocationIndex).getLocationId();
-//        Network.getInstance().requestTodayWeather(locationId);
-//        Network.getInstance().requestForecastWeather(locationId);
-//        getSupportLoaderManager().restartLoader(ID_LOADER, null, this);
-//
-//        navigationView.post(onNavChange);
-//        getSupportActionBar().setTitle(placeList.get(displayingLocationIndex).getCityName());
-//    }
+    // последний гарантированно вызываемый метод перед закрытием
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        if (resultCode == RESULT_OK) {
-//            switch (requestCode) {
-//                case NEW_LOCATION_REQUEST_CODE: {
-//                    Place place = (Place) data.getParcelableExtra(SearchActivity.PLACE_KEY);
-//                    addFavoriteLocation(place);
-//                    getFavoriteLocations(placeList);
-//                    displayingLocationIndex = placeList.size() - 1;
-//                    updateDrawerItems();
-//                    updateInfo();
-//                }
-//            }
-//        }
-//    }
-//
-//    private void updateDrawerItems() {
-//        int LOCATION_ID = 0;
-//        int FAVOURITES_ID = 1;
-//        int GROUP_ID = 1;
-//        int ITEM_ORDER = 100;
-//
-//        final Menu menu = navigationView.getMenu();
-//        MenuItem location = menu.getItem(LOCATION_ID);
-//        Menu menuLocation = location.getSubMenu();
-//        menuLocation.getItem(0).setTitle(placeList.get(0).getCityName());
-//
-//        MenuItem favourites = menu.getItem(FAVOURITES_ID);
-//        Menu menuFavourites = favourites.getSubMenu();
-//        menuFavourites.removeGroup(GROUP_ID);
-//        for (int i = 1; i < placeList.size(); i++) {
-//            final MenuItem menuItem = menuFavourites
-//                    .add(GROUP_ID, i, ITEM_ORDER + i, placeList.get(i).getCityName())
-//                    .setIcon(R.drawable.ic_place_black_24dp)
-//                    .setActionView(R.layout.action_view_delete);
-//
-//            View actionView = menuItem.getActionView();
-//            ImageView imageView = (ImageView) actionView.findViewById(R.id.iv_delete);
-//            imageView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    // TODO: 20.07.18 Realize deleting
-//                    Log.d(TAG, "clicked: " + menuItem.getItemId());
-//                    int id = menuItem.getItemId();
-//                    deleteFavoriteLocation(placeList.get(id));
-//                    if (displayingLocationIndex == id)
-//                        displayingLocationIndex = 0;
-//                    else if (displayingLocationIndex > id)
-//                        displayingLocationIndex--;
-//                    getFavoriteLocations(placeList);
-//                    updateDrawerItems();
-//                }
-//            });
-//        }
-//
-//        int addNewLocationBtnId = placeList.size();
-//        menuFavourites
-//                .add(GROUP_ID, addNewLocationBtnId,
-//                        ITEM_ORDER + addNewLocationBtnId,
-//                        R.string.add_new_location)
-//                .setIcon(R.drawable.ic_add_black_24dp);
-//        navigationView.post(onNavChange);
-//    }
-//
-//    private Runnable onNavChange = new Runnable() {
-//        @Override
-//        public void run() {
-//            if (displayingLocationIndex == 0){
-//                clearCheckedPosition();
-//                MenuItem menuItem = navigationView.getMenu()
-//                        .getItem(0)
-//                        .getSubMenu()
-//                        .getItem(0);
-//                menuItem.setChecked(true);
-//            }
-//            else if (displayingLocationIndex <= placeList.size()){
-//                clearCheckedPosition();
-//                MenuItem menuItem = navigationView.getMenu()
-//                        .getItem(1)
-//                        .getSubMenu()
-//                        .getItem(displayingLocationIndex -1);
-//                menuItem.setChecked(true);
-//            }
-//        }
-//    };
-//
-//    private void clearCheckedPosition(){
-//        navigationView.getMenu()
-//                .getItem(0)
-//                .getSubMenu()
-//                .getItem(0)
-//                .setChecked(false);
-//        for (int i = 0; i < placeList.size() - 1; i++) {
-//            navigationView.getMenu()
-//                    .getItem(1)
-//                    .getSubMenu()
-//                    .getItem(i)
-//                    .setChecked(false);
-//        }
-//    }
-//
-//
-//
-//    // последний гарантированно вызываемый метод перед закрытием
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//
-//        AppPreferences preferences = new AppPreferences(this);
-//        preferences.savePreference(LAST_LOCATION_KEY,
-//                placeList.get(displayingLocationIndex).getCityName());
-//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.detachView();
+        presenter.destroy();
+    }
 
+    public void updateTodayWeather(String temp, String type, String wind, String humidity) {
+        tvTodayTemp.setText(temp);
+        tvTodayWeatherType.setText(type);
+        tvTodayWind.setText(wind);
+        tvTodayHumidity.setText(humidity);
+    }
 
+    public ForecastListAdapter getForecastListAdapter() {
+        return forecastListAdapter;
+    }
 
+    private class OnDeleteFavouritePlaceItemListener implements View.OnClickListener {
+        private int id;
 
+        OnDeleteFavouritePlaceItemListener(int id){
+            this.id = id;
+        }
+
+        @Override
+        public void onClick(View view) {
+            presenter.deleteFavouritePlace(id);
+//            deleteFavoriteLocation(placeList.get(id));
+//            if (displayingLocationIndex == id)
+//                displayingLocationIndex = 0;
+//            else if (displayingLocationIndex > id)
+//                displayingLocationIndex--;
+//            getFavoriteLocations(placeList);
+//            updateDrawerItems();
+        }
+    }
 }

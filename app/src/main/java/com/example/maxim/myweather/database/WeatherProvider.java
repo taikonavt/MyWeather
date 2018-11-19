@@ -55,18 +55,18 @@ public class WeatherProvider extends ContentProvider {
         final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         switch (uriMatcher.match(uri)){
-//            case CODE_CURRENT_PLACE:{
-//                cursor = db.query(
-//                        Contract.CurrentPlaceEntry.TABLE_NAME,
-//                        null,
-//                        null,
-//                        null,
-//                        null,
-//                        null,
-//                        null
-//                );
-//                break;
-//            }
+            case CODE_CURRENT_PLACE:{
+                cursor = db.query(
+                        Contract.CurrentPlaceEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
 //            case CODE_FAVOURITE_PLACE_WITH_ID:{
 //                String where = Contract.FavouritePlaceEntry.COLUMN_PLACE_ID;
 //                String[] arg = new String[] {uri.getLastPathSegment()};
@@ -81,24 +81,24 @@ public class WeatherProvider extends ContentProvider {
 //                );
 //                break;
 //            }
-//            case CODE_FAVOURITE_PLACE:{
-//                cursor = db.query(
-//                        Contract.FavouritePlaceEntry.TABLE_NAME,
-//                        null,
-//                        null,
-//                        null,
-//                        null,
-//                        null,
-//                        null
-//                );
-//                Log.d(TAG, CLASS + "query() " + CODE_FAVOURITE_PLACE + " " + cursor.getCount());
-//                break;
-//            }
+            case CODE_FAVOURITE_PLACE:{
+                cursor = db.query(
+                        Contract.FavouritePlaceEntry.TABLE_NAME,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+                Log.d(TAG, CLASS + "query() " + CODE_FAVOURITE_PLACE + " " + cursor.getCount());
+                break;
+            }
             case CODE_TODAY_WEATHER:{
                 cursor = db.query(
                         Contract.TodayWeatherEntry.TABLE_NAME,
                         columns,
-                        selection + " = ?",
+                        selection,
                         selectionArgs,
                         null,
                         null,
@@ -106,21 +106,18 @@ public class WeatherProvider extends ContentProvider {
                 );
                 break;
             }
-//            case CODE_FORECAST_WEATHER_FOR_PLACE:{
-//                String where = Contract.ForecastWeatherEntry.COLUMN_PLACE_ID;
-//                String location = uri.getLastPathSegment();
-//                String[] args = new String[] {location};
-//                cursor = db.query(
-//                        Contract.ForecastWeatherEntry.TABLE_NAME,
-//                        columns,
-//                        where + " = ?",
-//                        args,
-//                        null,
-//                        null,
-//                        sortOrder
-//                );
-//                break;
-//            }
+            case CODE_FORECAST_WEATHER_FOR_PLACE:{
+                cursor = db.query(
+                        Contract.ForecastWeatherEntry.TABLE_NAME,
+                        columns,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

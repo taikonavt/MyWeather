@@ -1,11 +1,25 @@
 package com.example.maxim.myweather.presenter;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.maxim.myweather.ForecastWeather;
 import com.example.maxim.myweather.Place;
+import com.example.maxim.myweather.PreferenceActivity;
+import com.example.maxim.myweather.TodayWeather;
+import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.view.MainActivity;
 import com.example.maxim.myweather.view.MyActivity;
@@ -13,27 +27,29 @@ import com.example.maxim.myweather.view.MyActivity;
 import java.util.ArrayList;
 
 
-public class MainPresenter implements MyPresenter {
-    private AppCompatActivity activity;
+public class MainPresenter implements
+        MyPresenter {
+    private static final int CURRENT_PLACE_LOADER_ID = 1111;
+
+    private MainActivity activity;
     private MyModel model;
 
     private int displayingPlaceIndex;
+    private Place currentPlace;
+    private Place[] favouritePlaces;
 
-// Above checked constants
+    // Above checked constants
     private static final String LAST_LOCATION_KEY = "last_location_key";
     private static final int PERMISSION_REQUEST_CODE = 10;
     private static final int MOSCOW_ID = 524901;
-    private static final int ID_LOADER = 1111;
     private ArrayList<Place> placeList;
 
 
-    public MainPresenter(MyModel model){
-
-        this.model = model;
-
+    public MainPresenter() {
+        this.model = new MyModel(this);
         displayingPlaceIndex = 0;
-//        addCurrentLocationFromPref(placeList);
-        placeList = model.getFavoriteLocations();
+
+//        placeList = model.getFavoriteLocations();
 //
 //        setTodayWeather();
 //
@@ -64,7 +80,89 @@ public class MainPresenter implements MyPresenter {
 
     }
 
-    private void addCurrentLocationFromPref(ArrayList<Place> placeList){
+    @Override
+    public Context getAppContext() {
+        return activity;
+    }
+
+    public AppCompatActivity getActivity(){
+        return activity;
+    }
+
+    @Override
+    public boolean requestLocationPermissions() {
+        return false;
+    }
+
+    @Override
+    public void showToast(String message) {
+
+    }
+
+    public void updateCurrentPlace(Place place){
+        currentPlace = place;
+        activity.updateNavigatorCurrentPlace(place.getCityName());
+    }
+
+    public void updateFavouritePlaces(Place[] places){
+        favouritePlaces = places;
+        String[] cityNames = new String [places.length];
+        for (int i = 0; i < places.length; i++) {
+            cityNames[i] = places[i].getCityName();
+        }
+        activity.updateNavigatorFavouritePlaces(cityNames);
+    }
+
+    public void updateTodayWeather(TodayWeather todayWeather){
+        activity.updateTodayWeather(
+                Float.toString(todayWeather.getTemp()),
+                todayWeather.getShortDescr(),
+                Float.toString(todayWeather.getWindSpeed()),
+                Float.toString(todayWeather.getDegrees()));
+    }
+
+    public void updateForecastWeather(Cursor cursor){
+        activity.getForecastListAdapter().swapCursor(cursor);
+    }
+
+    public void onSettingsSelected() {
+        Intent intent = new Intent(activity, PreferenceActivity.class);
+        activity.startActivity(intent);
+    }
+
+    public void onNavigationCurrentPlaceSelected() {
+        displayingPlaceIndex = 0;
+        activity.setNavigationCurrentPlaceChecked();
+        model.download(currentPlace.getLocationId());
+    }
+
+    public void onNavigationItemSelected(int id) {
+        displayingPlaceIndex = id + 1;
+        activity.setNavigationPlaceChecked(id);
+        model.download(favouritePlaces[id].getLocationId());
+        //        // Handle navigation view item clicks here.
+//        int id = item.getItemId();
+//        final int addNewLocationBtnId = placeList.size();
+//
+//        if (id == R.id.current_place){
+//            displayingLocationIndex = 0;
+//        } else if (id == addNewLocationBtnId){
+//            Intent intent = new Intent(this, SearchActivity.class);
+//            startActivityForResult(intent, NEW_LOCATION_REQUEST_CODE);
+//            return true;
+//        } else{
+//            displayingLocationIndex = id; // здесь id от 1 и дальше
+//        }
+//        updateInfo();
+    }
+
+    public void deleteFavouritePlace(int id) {
+
+    }
+}
+
+
+//    private void addCurrentLocationFromPref(ArrayList<Place> placeList) {
 //        Place place = new Place();
 //        AppPreferences preferences = new AppPreferences(this);
 //        long cityId = preferences.getPreference(AppPreferences.LAST_CURRENT_LOCATION_KEY, MOSCOW_ID);
@@ -75,7 +173,7 @@ public class MainPresenter implements MyPresenter {
 //    }
 
 
-    // above checked methods
+// above checked methods
 
 //        private void requestLocationPermissions() {
 //            if (!ActivityCompat.shouldShowRequestPermissionRationale(context, Manifest.permission.CALL_PHONE)) {
@@ -140,7 +238,31 @@ public class MainPresenter implements MyPresenter {
 //        cursor.close();
 //    }
 //
+////    private void updateInfo() {
+////        long locationId = placeList.get(displayingLocationIndex).getLocationId();
+////        Network.getInstance().requestTodayWeather(locationId);
+////        Network.getInstance().requestForecastWeather(locationId);
+////        getSupportLoaderManager().restartLoader(ID_LOADER, null, this);
+////
+////        navigationView.post(onNavChange);
+////        getSupportActionBar().setTitle(placeList.get(displayingLocationIndex).getCityName());
+////    }
 //
+////    @Override
+////    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+////        if (resultCode == RESULT_OK) {
+////            switch (requestCode) {
+////                case NEW_LOCATION_REQUEST_CODE: {
+////                    Place place = (Place) data.getParcelableExtra(SearchActivity.PLACE_KEY);
+////                    addFavoriteLocation(place);
+////                    getFavoriteLocations(placeList);
+////                    displayingLocationIndex = placeList.size() - 1;
+////                    updateDrawerItems();
+////                    updateInfo();
+////                }
+////            }
+////        }
+////    }
 //
 //    private void addFavoriteLocation(Place place){
 //        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
@@ -260,4 +382,4 @@ public class MainPresenter implements MyPresenter {
 //    public static void attachController(MyPresenter contr) {
 //        controller = contr;
 //    }
-}
+//    }

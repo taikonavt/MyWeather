@@ -11,12 +11,14 @@ public class MyModel implements
     private Network network;
     private MyPresenter presenter;
     private DbMediator dbMediator;
+    private MyLoaderManager loaderManager;
 
 
     public MyModel(MyPresenter presenter){
         this.presenter = presenter;
         network = new Network(this);
         dbMediator = new DbMediator(this);
+        loaderManager = new MyLoaderManager(this);
     }
 
     public void startApp(){
@@ -28,9 +30,6 @@ public class MyModel implements
         return presenter;
     }
 
-//    Network getNetwork(){
-//        return network;
-//    }
 
     @Override
     public void onLocationChanged(Place place) {
@@ -58,6 +57,10 @@ public class MyModel implements
     @Override
     public void onRequestFailure() {
         presenter.showToast("Server connection was failed");
+    }
+
+    public void download(long locationId) {
+        loaderManager.reloadTodayWeather(locationId);
     }
 
 
