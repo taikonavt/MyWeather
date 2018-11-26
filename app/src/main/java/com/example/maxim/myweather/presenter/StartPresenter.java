@@ -2,16 +2,11 @@ package com.example.maxim.myweather.presenter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.util.Log;
 
-import com.example.maxim.myweather.model.AppPreferences;
 import com.example.maxim.myweather.model.MyModel;
 import com.example.maxim.myweather.view.MainActivity;
 import com.example.maxim.myweather.view.MyActivity;
 import com.example.maxim.myweather.view.StartActivity;
-
-import java.util.concurrent.TimeUnit;
 
 public class StartPresenter implements MyPresenter{
     private StartActivity activity;
@@ -29,7 +24,7 @@ public class StartPresenter implements MyPresenter{
 
     @Override
     public void viewIsReady() {
-        model.startApp();
+        model.updateCurrentPlace();
         startMainActivity();
         activity.finish();
     }
@@ -54,8 +49,8 @@ public class StartPresenter implements MyPresenter{
     }
 
     @Override
-    public boolean requestLocationPermissions() {
-        return false;
+    public void requestLocationPermissions() {
+        return;
     }
 
     @Override

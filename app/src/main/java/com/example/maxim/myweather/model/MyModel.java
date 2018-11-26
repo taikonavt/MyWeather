@@ -23,9 +23,10 @@ public class MyModel implements
         dbMediator = new DbMediator(this);
     }
 
-    public void startApp(){
+    public void updateCurrentPlace(){
         CurrentPlaceDefiner definer = new CurrentPlaceDefiner(this);
         definer.updateCurrentLocation();
+
     }
 
     public void initLoader() {
@@ -35,7 +36,6 @@ public class MyModel implements
     MyPresenter getPresenter(){
         return presenter;
     }
-
 
     @Override
     public void onLocationChanged(Place place) {

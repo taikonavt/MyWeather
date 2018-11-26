@@ -1,7 +1,12 @@
 package com.example.maxim.myweather.view;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,6 +20,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.maxim.myweather.ForecastListAdapter;
 import com.example.maxim.myweather.R;
@@ -23,10 +29,13 @@ import com.example.maxim.myweather.presenter.MainPresenter;
 public class MainActivity extends AppCompatActivity
         implements
         NavigationView.OnNavigationItemSelectedListener,
+        ExplainPermissionDialogFragment.OnButtonPermissionDialogListener,
         MyActivity{
 
     public static final String TAG = "myTag";
     public static final String CLASS = MainActivity.class.getSimpleName() + " ";
+
+    private static final int PERMISSION_REQUEST_CODE = 10;
 
     private MainPresenter presenter;
 
@@ -234,6 +243,46 @@ public class MainActivity extends AppCompatActivity
 
     public ForecastListAdapter getForecastListAdapter() {
         return forecastListAdapter;
+    }
+
+    public void requestLocationPermissions() {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            DialogFragment dialogFragment = new ExplainPermissionDialogFragment();
+            dialogFragment.show(getSupportFragmentManager(), "DialogFragment");
+        } else {
+            requestPermission();
+        }
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode){
+            case PERMISSION_REQUEST_CODE:{
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, getResources().getString(R.string.access_granted),
+                            Toast.LENGTH_LONG).show();
+                    presenter.accessToLocationGranted();
+                } else
+                    Toast.makeText(this, getResources().getString(R.string.access_denied),
+                            Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public void onOkButtonPermissionDialogFragmentClick() {
+        requestPermission();
     }
 
     private class OnDeleteFavouritePlaceItemListener implements View.OnClickListener {

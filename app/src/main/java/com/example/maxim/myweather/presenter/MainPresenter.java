@@ -19,6 +19,7 @@ public class MainPresenter implements
         MyPresenter {
     private static final int CURRENT_PLACE_LOADER_ID = 1111;
 
+
     private MainActivity activity;
     private MyModel model;
 
@@ -28,29 +29,18 @@ public class MainPresenter implements
 
     // Above checked constants
     private static final String LAST_LOCATION_KEY = "last_location_key";
-    private static final int PERMISSION_REQUEST_CODE = 10;
     private static final int MOSCOW_ID = 524901;
     private ArrayList<Place> placeList;
 
 
     public MainPresenter() {
-
-
-//        placeList = model.getFavoriteLocations();
-//
-//        setTodayWeather();
-//
-//        updateCurrentLocationFromGps();
-//
-//        startService(new Intent(MainActivity.this, SyncIntentService.class));
-//
-//        getSupportLoaderManager().initLoader(ID_LOADER, null, this);
     }
 
     @Override
     public void attachView(MyActivity activity) {
         this.activity = (MainActivity) activity;
         this.model = new MyModel(this);
+        model.updateCurrentPlace();
         model.initLoader();
         displayingPlaceIndex = 0;
     }
@@ -80,8 +70,8 @@ public class MainPresenter implements
     }
 
     @Override
-    public boolean requestLocationPermissions() {
-        return false;
+    public void requestLocationPermissions() {
+        activity.requestLocationPermissions();
     }
 
     @Override
@@ -149,6 +139,10 @@ public class MainPresenter implements
     public void deleteFavouritePlace(int id) {
         long placeId = favouritePlaces[id].getPlaceId();
         model.deleteFavouritePlace(placeId);
+    }
+
+    public void accessToLocationGranted() {
+        model.updateCurrentPlace();
     }
 }
 

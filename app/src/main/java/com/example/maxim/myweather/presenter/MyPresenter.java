@@ -16,7 +16,7 @@ public interface MyPresenter {
 
     Context getAppContext();
 
-    boolean requestLocationPermissions();
+    void requestLocationPermissions();
 
     void showToast(String message);
 }

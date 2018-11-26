@@ -126,6 +126,9 @@
     <string name="network_error">Сервер недоступен</string>
 
     <!-- MainActivity.class -->
+    <string name="access_denied">Доступ к местоположению запрещен!</string>
+    <string name="access_granted">Доступ к местоположению разрешен</string>
+
     <string name="current_location">Текущее местоположение</string>
 
     <string name="degrees_celsius">&#176;C</string>
@@ -134,6 +137,9 @@
     <string name="degrees">&#176;</string>
 
     <!-- SearchActivity.class -->
+
+    <!-- ExplainPermissionDialogFragment.class -->
+    <string name="permission_explanation">Доступ к местоположению необходим для отображения погоды</string>
 
     <!-- menu_search.xml -->
     <string name="search_title">Search</string>
