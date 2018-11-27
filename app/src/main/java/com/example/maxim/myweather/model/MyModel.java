@@ -26,7 +26,6 @@ public class MyModel implements
     public void updateCurrentPlace(){
         CurrentPlaceDefiner definer = new CurrentPlaceDefiner(this);
         definer.updateCurrentLocation();
-
     }
 
     public void initLoader() {
@@ -38,7 +37,7 @@ public class MyModel implements
     }
 
     @Override
-    public void onLocationChanged(Place place) {
+    public void setCurrentPlace(Place place) {
         if (!dbMediator.checkCurrentPlaceIsFresh(place)){
             network.requestTodayWeather(place.getCoordLat(), place.getCoordLon());
             network.requestForecastWeather(place.getCoordLat(), place.getCoordLon());
@@ -65,8 +64,10 @@ public class MyModel implements
         presenter.showToast("Server connection was failed");
     }
 
-    public void download(long locationId) {
-        loaderManager.reloadTodayWeather(locationId);
+    public void updateWeatherForDisplayingPlace(Place place) {
+        network.requestTodayWeather(place.getPlaceId());
+        network.requestForecastWeather(place.getPlaceId());
+        loaderManager.reloadWeather();
     }
 
     public void deleteFavouritePlace(long placeId){
@@ -78,47 +79,4 @@ public class MyModel implements
                 selection,
                 args);
     }
-
-
-
-
-//    private ArrayList<Place> getFavoriteLocations(){
-//        while (placeList.size() > 1){
-//            placeList.remove(1);
-//        }
-//
-//        Uri uri = Contract.FavouritePlaceEntry.CONTENT_URI;
-//
-//        Cursor cursor = getContentResolver().query(
-//                uri,
-//                null,
-//                null,
-//                null,
-//                null);
-//
-//        int i = 1;
-//        if (cursor.moveToFirst()){
-//            int idIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_PLACE_ID);
-//            int cityNameIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_CITY_NAME);
-//            int countryIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COUNTRY_NAME);
-//            int latitudeIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LAT);
-//            int longitudeIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_COORD_LONG);
-//            int todayIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_TODAY_LAST_UPDATE);
-//            int forecastIndex = cursor.getColumnIndex(Contract.FavouritePlaceEntry.COLUMN_FORECAST_LAST_UPDATE);
-//
-//            do {
-//                Place place = new Place();
-//                place.setLocationId(cursor.getInt(idIndex));
-//                place.setCityName(cursor.getString(cityNameIndex));
-//                place.setCountryName(cursor.getString(countryIndex));
-//                place.setCoordLat(cursor.getFloat(latitudeIndex));
-//                place.setCoordLat(cursor.getFloat(longitudeIndex));
-//                place.setTodayLastUpdate(cursor.getLong(todayIndex));
-//                place.setForecastLastUpdate(cursor.getLong(forecastIndex));
-//                placeList.add(i, place);
-//                i++;
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
-//    }
 }

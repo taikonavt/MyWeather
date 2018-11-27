@@ -54,9 +54,6 @@ public class WeatherProvider extends ContentProvider {
         Cursor cursor = null;
         final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Log.d(TAG, "WeatherProvider query() " + uri + " " + columns + " " + selection +
-        selectionArgs + " " + sortOrder);
-
         switch (uriMatcher.match(uri)){
             case CODE_CURRENT_PLACE:{
                 cursor = db.query(
@@ -217,7 +214,7 @@ public class WeatherProvider extends ContentProvider {
         switch (uriMatcher.match(uri)){
             case CODE_CURRENT_PLACE:{
                 numRowsDeleted = db.delete(
-                        Contract.FavouritePlaceEntry.TABLE_NAME,
+                        Contract.CurrentPlaceEntry.TABLE_NAME,
                         null,
                         null
                 );

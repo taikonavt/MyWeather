@@ -1,6 +1,5 @@
 package com.example.maxim.myweather.view;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;

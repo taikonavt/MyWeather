@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 public class MainPresenter implements
         MyPresenter {
-    private static final int CURRENT_PLACE_LOADER_ID = 1111;
-
+    public static String TAG = "myTag";
+    public String CLASS = this.getClass().getSimpleName();
 
     private MainActivity activity;
     private MyModel model;
@@ -26,6 +26,7 @@ public class MainPresenter implements
     private int displayingPlaceIndex;
     private Place currentPlace;
     private Place[] favouritePlaces;
+    private Place displayingPlace;
 
     // Above checked constants
     private static final String LAST_LOCATION_KEY = "last_location_key";
@@ -39,6 +40,7 @@ public class MainPresenter implements
     @Override
     public void attachView(MyActivity activity) {
         this.activity = (MainActivity) activity;
+        displayingPlace = new Place();
         this.model = new MyModel(this);
         model.updateCurrentPlace();
         model.initLoader();
@@ -99,6 +101,7 @@ public class MainPresenter implements
                 todayWeather.getShortDescr(),
                 Float.toString(todayWeather.getWindSpeed()),
                 Float.toString(todayWeather.getDegrees()));
+        activity.setTitle(displayingPlace.getCityName());
     }
 
     public void updateForecastWeather(Cursor cursor){
@@ -113,13 +116,15 @@ public class MainPresenter implements
     public void onNavigationCurrentPlaceSelected() {
         displayingPlaceIndex = 0;
         activity.setNavigationCurrentPlaceChecked();
-        model.download(currentPlace.getPlaceId());
+        setDisplayingPlace(currentPlace);
+        model.updateWeatherForDisplayingPlace(displayingPlace);
     }
 
     public void onNavigationItemSelected(int id) {
         displayingPlaceIndex = id + 1;
         activity.setNavigationPlaceChecked(id);
-        model.download(favouritePlaces[id].getPlaceId());
+        setDisplayingPlace(favouritePlaces[id]);
+        model.updateWeatherForDisplayingPlace(displayingPlace);
         //        // Handle navigation view item clicks here.
 //        int id = item.getItemId();
 //        final int addNewLocationBtnId = placeList.size();
@@ -143,6 +148,14 @@ public class MainPresenter implements
 
     public void accessToLocationGranted() {
         model.updateCurrentPlace();
+    }
+
+    public Place getDisplayingPlace() {
+        return displayingPlace;
+    }
+
+    public void setDisplayingPlace(Place displayingPlace) {
+        this.displayingPlace = displayingPlace;
     }
 }
 

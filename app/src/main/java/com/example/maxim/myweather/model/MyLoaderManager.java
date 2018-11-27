@@ -9,11 +9,15 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.example.maxim.myweather.common.Place;
 import com.example.maxim.myweather.common.TodayWeather;
 import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.presenter.MainPresenter;
+
+import static com.example.maxim.myweather.view.MainActivity.CLASS;
+import static com.example.maxim.myweather.view.MainActivity.TAG;
 
 public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int CURRENT_PLACE_LOADER_ID = 1111;
@@ -21,7 +25,6 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int TODAY_WEATHER_LOADER_ID = 3333;
     private static final int FORECAST_WEATHER_LOADER_ID = 4444;
 
-    private long displayingPlaceId;
     private boolean isFirstLoading = true;
     private MainPresenter presenter;
 
@@ -29,6 +32,10 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
         this.presenter = (MainPresenter) model.getPresenter();
         AppCompatActivity activity = presenter.getActivity();
         activity.getSupportLoaderManager().initLoader(CURRENT_PLACE_LOADER_ID, null, this);
+    }
+
+    private void initAnotherLoaders(){
+        AppCompatActivity activity = presenter.getActivity();
         activity.getSupportLoaderManager().initLoader(FAVOURITE_PLACES_LOADER_ID, null, this);
         activity.getSupportLoaderManager().initLoader(TODAY_WEATHER_LOADER_ID, null, this);
         activity.getSupportLoaderManager().initLoader(FORECAST_WEATHER_LOADER_ID, null, this);
@@ -63,7 +70,8 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
             case TODAY_WEATHER_LOADER_ID:{
                 Uri uri = Contract.TodayWeatherEntry.CONTENT_URI;
                 String selection = Contract.TodayWeatherEntry.COLUMN_PLACE_ID;
-                String[] args = new String[] {Long.toString(displayingPlaceId)};
+                String displayingPlaceId = Long.toString(presenter.getDisplayingPlace().getPlaceId());
+                String[] args = new String[] {displayingPlaceId};
                 return new CursorLoader(
                         presenter.getActivity(),
                         uri,
@@ -76,7 +84,8 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
             case FORECAST_WEATHER_LOADER_ID:{
                 Uri uri = Contract.ForecastWeatherEntry.CONTENT_URI;
                 String selection = Contract.ForecastWeatherEntry.COLUMN_PLACE_ID;
-                String[] args = new String[] {Long.toString(displayingPlaceId)};
+                String displayingPlaceId = Long.toString(presenter.getDisplayingPlace().getPlaceId());
+                String[] args = new String[] {displayingPlaceId};
                 return new CursorLoader(
                         presenter.getActivity(),
                         uri,
@@ -115,10 +124,11 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
                     place.setForecastLastUpdate(cursor.getLong(forecastLastUpdateIndex));
                 }
                 if (isFirstLoading) {
-                    displayingPlaceId = place.getPlaceId();
+                    presenter.setDisplayingPlace(place);
                     isFirstLoading = false;
                 }
                 presenter.updateCurrentPlace(place);
+                initAnotherLoaders();
                 break;
             }
             case FAVOURITE_PLACES_LOADER_ID:{
@@ -191,9 +201,9 @@ public class MyLoaderManager implements LoaderManager.LoaderCallbacks<Cursor> {
         }
     }
 
-    public void reloadTodayWeather(long locationId) {
-        displayingPlaceId = locationId;
+    void reloadWeather() {
         AppCompatActivity activity = presenter.getActivity();
         activity.getSupportLoaderManager().restartLoader(TODAY_WEATHER_LOADER_ID, null, this);
+        activity.getSupportLoaderManager().restartLoader(FORECAST_WEATHER_LOADER_ID, null, this);
     }
 }

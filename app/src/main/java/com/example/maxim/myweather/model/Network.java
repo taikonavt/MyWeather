@@ -12,9 +12,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class Network {
-    public static final String TAG = "myTag";
-    public static final String CLASS = Network.class.getSimpleName() + " ";
+class Network {
+    static final String TAG = "myTag";
+    static final String CLASS = Network.class.getSimpleName() + " ";
 
     private static final String BASE_URL = "https://api.openweathermap.org/";
     private final int forecastDays = 10;
@@ -31,8 +31,6 @@ public class Network {
                 .build();
         openWeather = retrofit.create(OpenWeather.class);
     }
-
-
 
     void requestTodayWeather(float coordLat, float coordLon){
         AppPreferences preferences = new AppPreferences(model.getPresenter().getAppContext());
@@ -66,7 +64,9 @@ public class Network {
                 .enqueue(new Callback<ForecastWeatherRequest>() {
                     @Override
                     public void onResponse(Call<ForecastWeatherRequest> call, Response<ForecastWeatherRequest> response) {
-
+                        if (response.body() != null) {
+                            model.onForecastWeatherDataReceive(response.body());
+                        }
                     }
 
                     @Override
@@ -76,52 +76,50 @@ public class Network {
                     }
                 });
     }
-//
-//    public void requestForecastWeather(long locationId){
-//        AppPreferences preferences = new AppPreferences(activity);
-//        String units = preferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
-//        String keyApi = preferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
-//
-//        openWeather.loadForecastWeather(locationId, units, forecastDays, keyApi)
-//                .enqueue(new Callback<ForecastWeatherRequest>() {
-//                    @Override
-//                    public void onResponse(Call<ForecastWeatherRequest> call, Response<ForecastWeatherRequest> response) {
-//                        MainActivity mainActivity = (MainActivity) activity;
-//                        mainActivity.onForecastWeatherDataReceive(response.body());
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ForecastWeatherRequest> call, Throwable t) {
-//                        Log.d(TAG, CLASS + "requestForecastWeather(); onFailure(); " + t);
-//                        Toast.makeText(activity, activity.getString(R.string.network_error),
-//                                Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//    }
-//
-//    public void requestTodayWeather(long locationId){
-//        AppPreferences appPreferences = new AppPreferences(activity);
-//        String units = appPreferences.getPreference(AppPreferences.UNITS_KEY, AppPreferences.UNITS_METRIC);
-//        String keyApi = appPreferences.getPreference(AppPreferences.API_KEY, AppPreferences.MY_API);
-//
-//        openWeather.loadTodayWeather(locationId, units, keyApi)
-//                .enqueue(new Callback<TodayWeatherRequest>() {
-//                    @Override
-//                    public void onResponse(Call<TodayWeatherRequest> call, Response<TodayWeatherRequest> response) {
-//                        if (response.body() != null) {
-//                            MainActivity mainActivity = (MainActivity) activity;
-//                            mainActivity.sendToDbTodayWeather(response.body());
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<TodayWeatherRequest> call, Throwable t) {
-//                        Log.d(TAG, CLASS + "requestTodayWeather(); onFailure(); " + t);
-//                        Toast.makeText(activity, activity.getString(R.string.network_error),
-//                                Toast.LENGTH_LONG).show();
-//                    }
-//                });
-//    }
+
+    void requestForecastWeather(long locationId){
+        AppPreferences preferences = new AppPreferences(model.getPresenter().getAppContext());
+        String units = preferences.getUnits();
+        String keyApi = preferences.getMyApi();
+
+        openWeather.loadForecastWeather(locationId, units, forecastDays, keyApi)
+                .enqueue(new Callback<ForecastWeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<ForecastWeatherRequest> call, Response<ForecastWeatherRequest> response) {
+                        if (response.body() != null) {
+                            model.onForecastWeatherDataReceive(response.body());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ForecastWeatherRequest> call, Throwable t) {
+                        model.onRequestFailure();
+                        Log.d(TAG, CLASS + "requestTodayWeather(); onFailure(); " + t);
+                    }
+                });
+    }
+
+    void requestTodayWeather(long locationId){
+        AppPreferences preferences = new AppPreferences(model.getPresenter().getAppContext());
+        String units = preferences.getUnits();
+        String keyApi = preferences.getMyApi();
+
+        openWeather.loadTodayWeather(locationId, units, keyApi)
+                .enqueue(new Callback<TodayWeatherRequest>() {
+                    @Override
+                    public void onResponse(Call<TodayWeatherRequest> call, Response<TodayWeatherRequest> response) {
+                        if (response.body() != null) {
+                            model.onTodayWeatherDataReceive(response.body());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<TodayWeatherRequest> call, Throwable t) {
+                        model.onRequestFailure();
+                        Log.d(TAG, CLASS + "requestTodayWeather(); onFailure(); " + t);
+                    }
+                });
+    }
 
 //    public void requestTodayWeather(String cityName){
 //        AppPreferences appPreferences = new AppPreferences(activity);

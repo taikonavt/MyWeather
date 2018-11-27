@@ -10,6 +10,9 @@ import com.example.maxim.myweather.database.Contract;
 import com.example.maxim.myweather.network.forecast.ForecastWeatherRequest;
 import com.example.maxim.myweather.network.today.TodayWeatherRequest;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class DbMediator {
     private MyModel model;
     private ContentResolver resolver;
@@ -32,10 +35,10 @@ public class DbMediator {
                 null
         );
         int size = cursor.getCount();
-        if (size > 1) {
-            String message = Contract.CurrentPlaceEntry.TABLE_NAME + " store more then 1 row";
-            throw new IndexOutOfBoundsException(message);
-        }
+//        if (size > 1) {
+//            String message = Contract.CurrentPlaceEntry.TABLE_NAME + " store more then 1 row";
+//            throw new IndexOutOfBoundsException(message);
+//        }
         if (cursor.moveToFirst()){
             int locationIdIndex = cursor.getColumnIndex(Contract.CurrentPlaceEntry.COLUMN_PLACE_ID);
             int cityNameIndex = cursor.getColumnIndex(Contract.CurrentPlaceEntry.COLUMN_CITY_NAME);
@@ -108,12 +111,16 @@ public class DbMediator {
         long todayLastUdpate = System.currentTimeMillis();
         long forecastLastUpdate = 0;
 
+        final int SCALE = CurrentPlaceDefiner.SCALE;
+        float coordLatRound = (new BigDecimal(coordLat).setScale(SCALE, RoundingMode.HALF_EVEN)).floatValue();
+        float coordLonRound = (new BigDecimal(coordLon).setScale(SCALE, RoundingMode.HALF_EVEN)).floatValue();
+
         ContentValues cv = new ContentValues();
         cv.put(Contract.CurrentPlaceEntry.COLUMN_PLACE_ID, locationId);
         cv.put(Contract.CurrentPlaceEntry.COLUMN_CITY_NAME, cityName);
         cv.put(Contract.CurrentPlaceEntry.COLUMN_COUNTRY_NAME, countryName);
-        cv.put(Contract.CurrentPlaceEntry.COLUMN_COORD_LAT, coordLat);
-        cv.put(Contract.CurrentPlaceEntry.COLUMN_COORD_LONG, coordLon);
+        cv.put(Contract.CurrentPlaceEntry.COLUMN_COORD_LAT, coordLatRound);
+        cv.put(Contract.CurrentPlaceEntry.COLUMN_COORD_LONG, coordLonRound);
         cv.put(Contract.CurrentPlaceEntry.COLUMN_TODAY_LAST_UPDATE, todayLastUdpate);
         cv.put(Contract.CurrentPlaceEntry.COLUMN_FORECAST_LAST_UPDATE, forecastLastUpdate);
 

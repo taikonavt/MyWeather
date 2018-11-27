@@ -13,6 +13,9 @@ import android.support.v4.app.ActivityCompat;
 import com.example.maxim.myweather.common.Place;
 import com.example.maxim.myweather.presenter.MyPresenter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import static android.content.Context.LOCATION_SERVICE;
 
 class CurrentPlaceDefiner {
@@ -55,14 +58,13 @@ class CurrentPlaceDefiner {
 
         String provider = locationManager.getBestProvider(criteria, true);
         if (provider != null) {
+            Location location = locationManager.getLastKnownLocation(provider);
+            setLocation(location);
+
             locationManager.requestSingleUpdate(provider, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    double lat = location.getLatitude();
-                    double lon = location.getLongitude();
-                    place.setCoordLat((float) lat);
-                    place.setCoordLong((float) lon);
-                    model.onLocationChanged(place);
+                    setLocation(location);
                 }
 
                 @Override
@@ -83,7 +85,19 @@ class CurrentPlaceDefiner {
         }
     }
 
+    public static final int SCALE = 2;
+    private void setLocation(Location location){
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        float latF = (new BigDecimal(lat).setScale(SCALE, RoundingMode.HALF_EVEN)).floatValue();
+        float lonF = (new BigDecimal(lon).setScale(SCALE, RoundingMode.HALF_EVEN)).floatValue();
+        place.setCoordLat(latF);
+        place.setCoordLong(lonF);
+        model.setCurrentPlace(place);
+    }
+
+
     interface OnLocationChangedListener{
-        void onLocationChanged(Place place);
+        void setCurrentPlace(Place place);
     }
 }
